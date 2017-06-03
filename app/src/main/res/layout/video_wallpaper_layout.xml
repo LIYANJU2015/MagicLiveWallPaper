@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center_horizontal">
+
+
+    <VideoView
+        android:id="@+id/video_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:visibility="gone" />
+
+
+    <com.magiclive.widget.ENPlayView
+        android:layout_gravity="center"
+        android:id="@+id/play_view"
+        android:layout_width="60dp"
+        android:layout_height="60dp" />
+
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="90dp"
+        android:layout_gravity="bottom">
+
+        <com.magiclive.widget.RangeSeekBar
+            android:id="@+id/seekbar1"
+            android:layout_width="match_parent"
+            android:layout_height="90dp"
+            app:cellMode="number"
+            app:lineColorEdge="@color/colorSeekBarDefault"
+            app:lineColorSelected="@color/colorAccent"
+            app:seekBarHeight="4dp"
+            app:seekBarMode="range"
+            app:textPadding="17dp"
+            app:thumbPrimaryColor="@color/colorSeekBarDefault"
+            app:thumbSecondaryColor="@color/colorAccent"
+            app:thumbSize="20dp" />
+
+    </FrameLayout>
+
+</FrameLayout>
