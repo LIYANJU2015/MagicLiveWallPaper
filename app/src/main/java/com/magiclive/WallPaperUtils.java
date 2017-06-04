@@ -4,6 +4,8 @@ import android.app.WallpaperManager;
 import android.content.ComponentName;
 import android.content.Intent;
 
+import static android.app.WallpaperManager.ACTION_CHANGE_LIVE_WALLPAPER;
+
 /**
  * Created by liyanju on 2017/6/2.
  */
@@ -16,7 +18,7 @@ public class WallPaperUtils {
         if (android.os.Build.VERSION.SDK_INT < 16) {
             intent = new Intent(WallpaperManager.ACTION_LIVE_WALLPAPER_CHOOSER);
         } else {
-            intent = new Intent(WallpaperManager.ACTION_CHANGE_LIVE_WALLPAPER);
+            intent = new Intent(ACTION_CHANGE_LIVE_WALLPAPER);
             intent.putExtra(WallpaperManager.EXTRA_LIVE_WALLPAPER_COMPONENT, componentName);
         }
         return intent;

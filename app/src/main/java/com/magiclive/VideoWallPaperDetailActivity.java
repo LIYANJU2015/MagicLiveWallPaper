@@ -1,15 +1,20 @@
 package com.magiclive;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.Button;
+import android.widget.SeekBar;
 import android.widget.VideoView;
 
 
 import com.magiclive.bean.VideoInfoBean;
+import com.magiclive.db.VideoWallPaperDao;
+import com.magiclive.service.VideoLiveWallPaperService;
 import com.magiclive.util.LogUtils;
 import com.magiclive.util.TimeUtils;
 import com.magiclive.util.UIThreadHelper;
@@ -39,10 +44,16 @@ public class VideoWallPaperDetailActivity extends AppCompatActivity implements M
 
     private boolean isSeeking = false;
 
+    private Button setBtn;
+
+    private Context context;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.video_wallpaper_layout);
+        context = getApplicationContext();
+        LogUtils.v("onCreate");
 
         currentVideoInfo = getIntent().getParcelableExtra("videoinfo");
 
@@ -58,6 +69,18 @@ public class VideoWallPaperDetailActivity extends AppCompatActivity implements M
                     videoStart();
                     startUpdateProgress();
                 }
+            }
+        });
+
+        setBtn = (Button)findViewById(R.id.set_btn);
+        setBtn.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                currentVideoInfo.isSelection = true;
+                currentVideoInfo.startTime = (long)curMin;
+                currentVideoInfo.endTime = (long)curMax;
+                VideoWallPaperDao.setVideoWallPaper(context, currentVideoInfo);
+                VideoLiveWallPaperService.startVideoWallpaperPreView(VideoWallPaperDetailActivity.this);
             }
         });
 
@@ -107,6 +130,37 @@ public class VideoWallPaperDetailActivity extends AppCompatActivity implements M
         videoView.setVideoPath(currentVideoInfo.path);
         videoView.setMediaController(null);
         videoView.requestFocus();
+
+        SeekBar seekBar = (SeekBar)findViewById(R.id.seekbar);
+        seekBar.setMax(100);
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                LogUtils.v("onStopTrackingTouch", "getProgress " + seekBar.getProgress());
+                currentVideoInfo.volume = seekBar.getProgress();
+            }
+        });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        LogUtils.v("onActivityResult", " requestCode " + requestCode + " resultCode " + resultCode);
+        if (resultCode == Activity.RESULT_OK) {
+            currentVideoInfo.isPreview = false;
+            VideoWallPaperDao.setVideoWallPaper(context, currentVideoInfo);
+            finish();
+        }
     }
 
     @Override

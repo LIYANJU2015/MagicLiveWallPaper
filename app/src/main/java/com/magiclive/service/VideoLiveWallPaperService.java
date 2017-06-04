@@ -6,15 +6,19 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.MediaPlayer;
+import android.os.AsyncTask;
 import android.os.Process;
 import android.service.wallpaper.WallpaperService;
+import android.text.TextUtils;
 import android.view.SurfaceHolder;
+
+import com.magiclive.bean.VideoInfoBean;
+import com.magiclive.db.VideoWallPaperDao;
 import com.magiclive.util.LogUtils;
 import com.magiclive.util.UIThreadHelper;
 
-import static com.magiclive.AppApplication.getAppPreferences;
+import static android.R.attr.path;
 import static com.magiclive.WallPaperUtils.createLiveWallpaperIntent;
-
 
 
 /**
@@ -28,7 +32,8 @@ public class VideoLiveWallPaperService extends WallpaperService {
 
     private Context context;
 
-    private static final String VIDEO_PARAMS_CONTROL_ACTION = "video_params_control_action";
+    public static final String VIDEO_VOLUME_ACTION = "video_volume_action";
+    public static final String VIDEO_SET_ACTION = "video_set_action";
 
     @Override
     public void onCreate() {
@@ -39,11 +44,8 @@ public class VideoLiveWallPaperService extends WallpaperService {
 
     @Override
     public Engine onCreateEngine() {
-        String videoPath = getAppPreferences().getString(VIDEO_PATH, "");
-        int start = getAppPreferences().getInt("start", 0);
-        int end = getAppPreferences().getInt("end", Integer.MAX_VALUE);
-        LogUtils.v("onCreateEngine", " videoPath:: " + videoPath + " start " + start + " end " + end);
-        return new VideoEngine(videoPath, start, end);
+        LogUtils.v("onCreateEngine>> " + hashCode());
+        return new VideoEngine();
     }
 
     public class VideoEngine extends Engine implements Runnable, MediaPlayer.OnCompletionListener {
@@ -51,16 +53,34 @@ public class VideoLiveWallPaperService extends WallpaperService {
         private MediaPlayer mediaPlayer = null;
 
         private String path;
-
         private int start;
         private int end;
+        private int volume;
 
         private BroadcastReceiver mVideoParamsControlReceiver;
 
-        public VideoEngine(String path, int start, int end) {
-            this.path = path;
-            this.start = start;
-            this.end = end;
+        public VideoEngine() {
+            initVideoInfoBean();
+        }
+
+        private boolean initVideoInfoBean() {
+            VideoInfoBean videoInfoBean = VideoWallPaperDao.getVideoWallPaper(context);
+            LogUtils.v("initVideoInfoBean", " videoPath:: " + videoInfoBean.path
+                    + " start " + videoInfoBean.startTime
+                    + " end " + videoInfoBean.endTime
+                    + " volume " + videoInfoBean.volume
+                    + " path :: " + path);
+            boolean repeat = false;
+            if (!TextUtils.isEmpty(path) && path.equals(videoInfoBean.path)) {
+                repeat = true;
+            }
+
+            path = videoInfoBean.path;
+            start = (int)videoInfoBean.startTime;
+            end = (int)videoInfoBean.endTime;
+            volume = videoInfoBean.volume;
+
+            return repeat;
         }
 
         @Override
@@ -76,14 +96,17 @@ public class VideoLiveWallPaperService extends WallpaperService {
         @Override
         public void onCreate(SurfaceHolder surfaceHolder) {
             super.onCreate(surfaceHolder);
-            registerReceiver();
+            LogUtils.v("VideoEngine", "onCreate " + hashCode());
+            if (!isPreview()) {
+                registerReceiver();
+            }
         }
 
         @Override
         public void onDestroy() {
             super.onDestroy();
             try {
-                if (mVideoParamsControlReceiver != null) {
+                if (mVideoParamsControlReceiver != null && !isPreview()) {
                     unregisterReceiver(mVideoParamsControlReceiver);
                 }
             } catch (Throwable e) {
@@ -92,22 +115,27 @@ public class VideoLiveWallPaperService extends WallpaperService {
         }
 
         private void registerReceiver() {
-            IntentFilter intentFilter = new IntentFilter(VIDEO_PARAMS_CONTROL_ACTION);
+            IntentFilter intentFilter = new IntentFilter(VIDEO_VOLUME_ACTION);
+            intentFilter.addAction(VIDEO_SET_ACTION);
             context.registerReceiver(mVideoParamsControlReceiver = new BroadcastReceiver() {
                 @Override
                 public void onReceive(Context context, Intent intent) {
+                    if (intent == null) {
+                        return;
+                    }
                     LogUtils.v("registerReceiver", "onReceive");
-                    setPlayerVolume();
+                    if (VIDEO_VOLUME_ACTION.equals(intent.getAction())) {
+                        setPlayerVolume();
+                    }
                 }
             }, intentFilter);
         }
 
         private void setPlayerVolume() {
             if (mediaPlayer != null) {
-                int videoVolume = getAppPreferences().getInt(VIDEO_VOLUME, 0);
-                float volume = videoVolume * 1.f / 100f;
-                LogUtils.v("setVolume", " volume " + volume + " videoVolume " + videoVolume);
-                mediaPlayer.setVolume(volume, volume);
+                float newVolume = volume * 1.f / 100f;
+                LogUtils.v("setVolume", " volume " + volume + " videoVolume " + newVolume);
+                mediaPlayer.setVolume(newVolume, newVolume);
             }
         }
 
@@ -120,29 +148,66 @@ public class VideoLiveWallPaperService extends WallpaperService {
         @Override
         public void onSurfaceCreated(SurfaceHolder holder) {
             super.onSurfaceCreated(holder);
-            LogUtils.v("VideoEngine", "onSurfaceCreated");
-            initMediaPlayer(holder);
+            LogUtils.v("VideoEngine", "onSurfaceCreated " + hashCode());
+            initMediaPlayer();
+        }
+
+        private void onVisibilityChangedPlay() {
+            if (isVisible()) {
+                if (mediaPlayer != null) {
+                    mediaPlayer.start();
+                }
+                startUpdateProgress();
+            } else {
+                if (mediaPlayer != null) {
+                    mediaPlayer.pause();
+                }
+            }
         }
 
         @Override
         public void onVisibilityChanged(boolean visible) {
             LogUtils.v("VideoEngine", "onVisibilityChanged visible " + visible
-                    + " myPid " + Process.myPid());
-            if (visible) {
-                mediaPlayer.start();
-                startUpdateProgress();
+                    + " hashCode " + hashCode() + " path " + path + " isPreview " + isPreview());
+            if (isPreview()) {
+                onVisibilityChangedPlay();
             } else {
-                mediaPlayer.pause();
+                new AsyncTask<Void, Void, Boolean>() {
+                    @Override
+                    protected Boolean doInBackground(Void... params) {
+                        return initVideoInfoBean();
+                    }
+
+                    @Override
+                    protected void onPostExecute(Boolean repeat) {
+                        super.onPostExecute(repeat);
+                        if (!repeat) {
+                            releasePlayer();
+                            if (isVisible()) {
+                                initMediaPlayer();
+                            }
+                        } else {
+                            onVisibilityChangedPlay();
+                        }
+                    }
+                }.execute();
             }
         }
 
-        private void initMediaPlayer(SurfaceHolder holder) {
-            mediaPlayer = new MediaPlayer();
-            mediaPlayer.setSurface(holder.getSurface());
+        private void initMediaPlayer() {
+            if (mediaPlayer == null) {
+                mediaPlayer = new MediaPlayer();
+                mediaPlayer.setSurface(getSurfaceHolder().getSurface());
+            }
             try {
                 LogUtils.v("initMediaPlayer", " path " + path);
+                if (TextUtils.isEmpty(path)) {
+                    return;
+                }
+                mediaPlayer.reset();
                 mediaPlayer.setDataSource(path);
                 mediaPlayer.setOnCompletionListener(this);
+                mediaPlayer.setVideoScalingMode(MediaPlayer.VIDEO_SCALING_MODE_SCALE_TO_FIT);
                 setPlayerVolume();
                 mediaPlayer.prepare();
                 mediaPlayer.seekTo(start);
@@ -184,11 +249,12 @@ public class VideoLiveWallPaperService extends WallpaperService {
         @Override
         public void onSurfaceDestroyed(SurfaceHolder holder) {
             super.onSurfaceDestroyed(holder);
-            LogUtils.v("VideoEngine", "onSurfaceDestroyed " + Process.myPid());
+            LogUtils.v("VideoEngine", "onSurfaceDestroyed " + hashCode());
             releasePlayer();
         }
 
         public void releasePlayer() {
+            UIThreadHelper.getInstance().getHandler().removeCallbacks(this);
             if (null != mediaPlayer) {
                 mediaPlayer.release();
                 mediaPlayer = null;
@@ -197,14 +263,17 @@ public class VideoLiveWallPaperService extends WallpaperService {
     }
 
     public static void setVideoWallpaperVolume(Context context, int volume) {
-        getAppPreferences().put(VIDEO_VOLUME, volume);
-        Intent intent = new Intent(VIDEO_PARAMS_CONTROL_ACTION);
+        Intent intent = new Intent(VIDEO_VOLUME_ACTION);
+        intent.putExtra(VIDEO_VOLUME, volume);
         context.sendBroadcast(intent);
     }
 
-    public static void startVideoWallpaperPreView(Context context, String videoPath) {
-        getAppPreferences().put(VIDEO_PATH, videoPath);
+    public static void setVideoWallpaper(Context context) {
+        Intent intent = new Intent(VIDEO_SET_ACTION);
+        context.sendBroadcast(intent);
+    }
 
+    public static void startVideoWallpaperPreView(Context context) {
         Intent intent = createLiveWallpaperIntent(context.getPackageName(),
                 VideoLiveWallPaperService.class.getName());
         if (context instanceof Activity) {

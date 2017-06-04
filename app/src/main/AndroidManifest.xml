@@ -102,6 +102,10 @@
                 android:resource="@xml/dynamic_wallpaper" />
         </service>
 
+        <provider
+            android:authorities="com.magiclive.db.MagicLiveContentProvider"
+            android:name=".db.MagicLiveContentProvider"/>
+
     </application>
 
 </manifest>

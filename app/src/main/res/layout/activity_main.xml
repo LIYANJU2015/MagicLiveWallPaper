@@ -13,12 +13,6 @@
     >
 
     <Button
-        android:id="@+id/video_btn"
-        android:text="视频壁纸"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-
-    <Button
         android:id="@+id/video_btn22"
         android:text="透明壁纸"
         android:layout_width="match_parent"
@@ -36,12 +30,29 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
-    <android.support.v7.widget.AppCompatSeekBar
-        android:layout_marginTop="50dp"
-        android:id="@+id/seekbar"
-        android:max="100"
+    <RadioGroup
+        android:id="@+id/RadioGroup"
+        android:layout_marginTop="40dp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:orientation="vertical" >
+
+        <RadioButton
+            android:checked="true"
+            android:text="/data/kids/data/x5b0cpy.mp4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/raido1"
+            />
+        <RadioButton
+            android:text="/test1.mp4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/raido2"
+            />
+
+    </RadioGroup>
 
 
 </LinearLayout>
