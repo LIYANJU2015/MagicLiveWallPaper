@@ -6,8 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.MediaPlayer;
-import android.os.AsyncTask;
-import android.os.Process;
 import android.service.wallpaper.WallpaperService;
 import android.text.TextUtils;
 import android.view.SurfaceHolder;
@@ -17,7 +15,6 @@ import com.magiclive.db.VideoWallPaperDao;
 import com.magiclive.util.LogUtils;
 import com.magiclive.util.UIThreadHelper;
 
-import static android.R.attr.path;
 import static com.magiclive.WallPaperUtils.createLiveWallpaperIntent;
 
 
@@ -59,38 +56,20 @@ public class VideoLiveWallPaperService extends WallpaperService {
 
         private BroadcastReceiver mVideoParamsControlReceiver;
 
-        public VideoEngine() {
-            initVideoInfoBean();
-        }
-
-        private boolean initVideoInfoBean() {
-            VideoInfoBean videoInfoBean = VideoWallPaperDao.getVideoWallPaper(context);
-            LogUtils.v("initVideoInfoBean", " videoPath:: " + videoInfoBean.path
+        private void initVideoWallPaperParam(VideoInfoBean videoInfoBean) {
+            if (videoInfoBean == null) {
+                return;
+            }
+            LogUtils.v("initVideoWallPaperParam", " videoPath:: " + videoInfoBean.path
                     + " start " + videoInfoBean.startTime
                     + " end " + videoInfoBean.endTime
                     + " volume " + videoInfoBean.volume
                     + " path :: " + path);
-            boolean repeat = false;
-            if (!TextUtils.isEmpty(path) && path.equals(videoInfoBean.path)) {
-                repeat = true;
-            }
 
             path = videoInfoBean.path;
             start = (int)videoInfoBean.startTime;
             end = (int)videoInfoBean.endTime;
             volume = videoInfoBean.volume;
-
-            return repeat;
-        }
-
-        @Override
-        public SurfaceHolder getSurfaceHolder() {
-            return super.getSurfaceHolder();
-        }
-
-        @Override
-        public void setTouchEventsEnabled(boolean enabled) {
-            super.setTouchEventsEnabled(enabled);
         }
 
         @Override
@@ -126,6 +105,17 @@ public class VideoLiveWallPaperService extends WallpaperService {
                     LogUtils.v("registerReceiver", "onReceive");
                     if (VIDEO_VOLUME_ACTION.equals(intent.getAction())) {
                         setPlayerVolume();
+                    } else if (VIDEO_SET_ACTION.equals(intent.getAction())) {
+                        VideoInfoBean videoInfoBean = intent.getParcelableExtra("VideoInfo");
+                        LogUtils.v("registerReceiver", "onReceive newPath " + videoInfoBean.path + " path " + path);
+                        if (!videoInfoBean.path.equals(path)) {
+                            initVideoWallPaperParam(videoInfoBean);
+                            releasePlayer();
+                            initMediaPlayer();
+                            if (!isVisible()) {
+                                mediaPlayer.pause();
+                            }
+                        }
                     }
                 }
             }, intentFilter);
@@ -148,7 +138,9 @@ public class VideoLiveWallPaperService extends WallpaperService {
         @Override
         public void onSurfaceCreated(SurfaceHolder holder) {
             super.onSurfaceCreated(holder);
+            initVideoWallPaperParam(VideoWallPaperDao.getVideoWallPaper(context));
             LogUtils.v("VideoEngine", "onSurfaceCreated " + hashCode());
+
             initMediaPlayer();
         }
 
@@ -169,32 +161,10 @@ public class VideoLiveWallPaperService extends WallpaperService {
         public void onVisibilityChanged(boolean visible) {
             LogUtils.v("VideoEngine", "onVisibilityChanged visible " + visible
                     + " hashCode " + hashCode() + " path " + path + " isPreview " + isPreview());
-            if (isPreview()) {
-                onVisibilityChangedPlay();
-            } else {
-                new AsyncTask<Void, Void, Boolean>() {
-                    @Override
-                    protected Boolean doInBackground(Void... params) {
-                        return initVideoInfoBean();
-                    }
-
-                    @Override
-                    protected void onPostExecute(Boolean repeat) {
-                        super.onPostExecute(repeat);
-                        if (!repeat) {
-                            releasePlayer();
-                            if (isVisible()) {
-                                initMediaPlayer();
-                            }
-                        } else {
-                            onVisibilityChangedPlay();
-                        }
-                    }
-                }.execute();
-            }
+            onVisibilityChangedPlay();
         }
 
-        private void initMediaPlayer() {
+        private synchronized void initMediaPlayer() {
             if (mediaPlayer == null) {
                 mediaPlayer = new MediaPlayer();
                 mediaPlayer.setSurface(getSurfaceHolder().getSurface());
@@ -268,8 +238,9 @@ public class VideoLiveWallPaperService extends WallpaperService {
         context.sendBroadcast(intent);
     }
 
-    public static void setVideoWallpaper(Context context) {
+    public static void setVideoWallpaper(Context context, VideoInfoBean videoInfoBean) {
         Intent intent = new Intent(VIDEO_SET_ACTION);
+        intent.putExtra("VideoInfo", videoInfoBean);
         context.sendBroadcast(intent);
     }
 

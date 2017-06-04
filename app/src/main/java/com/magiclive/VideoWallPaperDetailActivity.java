@@ -31,7 +31,7 @@ public class VideoWallPaperDetailActivity extends AppCompatActivity implements M
 
     private RangeSeekBar rangeSeekBar;
 
-    private VideoInfoBean currentVideoInfo;
+    private VideoInfoBean curVideoInfo;
 
     private VideoView videoView;
 
@@ -55,7 +55,7 @@ public class VideoWallPaperDetailActivity extends AppCompatActivity implements M
         context = getApplicationContext();
         LogUtils.v("onCreate");
 
-        currentVideoInfo = getIntent().getParcelableExtra("videoinfo");
+        curVideoInfo = getIntent().getParcelableExtra("videoinfo");
 
         enPlayView = (ENPlayView)findViewById(R.id.play_view);
         enPlayView.play();
@@ -76,10 +76,10 @@ public class VideoWallPaperDetailActivity extends AppCompatActivity implements M
         setBtn.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-                currentVideoInfo.isSelection = true;
-                currentVideoInfo.startTime = (long)curMin;
-                currentVideoInfo.endTime = (long)curMax;
-                VideoWallPaperDao.setVideoWallPaper(context, currentVideoInfo);
+                curVideoInfo.isSelection = true;
+                curVideoInfo.startTime = (long)curMin;
+                curVideoInfo.endTime = (long)curMax;
+                VideoWallPaperDao.setVideoWallPaper(context, curVideoInfo);
                 VideoLiveWallPaperService.startVideoWallpaperPreView(VideoWallPaperDetailActivity.this);
             }
         });
@@ -127,7 +127,7 @@ public class VideoWallPaperDetailActivity extends AppCompatActivity implements M
         videoView.setVisibility(View.VISIBLE);
         videoView.setOnPreparedListener(this);
         videoView.setOnCompletionListener(this);
-        videoView.setVideoPath(currentVideoInfo.path);
+        videoView.setVideoPath(curVideoInfo.path);
         videoView.setMediaController(null);
         videoView.requestFocus();
 
@@ -147,7 +147,7 @@ public class VideoWallPaperDetailActivity extends AppCompatActivity implements M
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 LogUtils.v("onStopTrackingTouch", "getProgress " + seekBar.getProgress());
-                currentVideoInfo.volume = seekBar.getProgress();
+                curVideoInfo.volume = seekBar.getProgress();
             }
         });
     }
@@ -157,9 +157,10 @@ public class VideoWallPaperDetailActivity extends AppCompatActivity implements M
         super.onActivityResult(requestCode, resultCode, data);
         LogUtils.v("onActivityResult", " requestCode " + requestCode + " resultCode " + resultCode);
         if (resultCode == Activity.RESULT_OK) {
-            currentVideoInfo.isPreview = false;
-            VideoWallPaperDao.setVideoWallPaper(context, currentVideoInfo);
+            curVideoInfo.isPreview = false;
+            VideoLiveWallPaperService.setVideoWallpaper(context, curVideoInfo);
             finish();
+            ((AppApplication)getApplication()).getAppManager().killAll();
         }
     }
 
