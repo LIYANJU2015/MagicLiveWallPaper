@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.provider.MediaStore;
 
 import com.magiclive.db.MagicLiveContract;
 
@@ -29,7 +30,15 @@ public class VideoInfoBean implements Parcelable{
 
     public int volume;
 
-    public boolean isPreview = true;
+    public long updateTime;
+
+    public static VideoInfoBean mediaInfoToVideoInfo(Cursor cursor) {
+        VideoInfoBean videoInfo = new VideoInfoBean();
+        videoInfo.path = cursor.getString(cursor.getColumnIndex(MediaStore.MediaColumns.DATA));
+        videoInfo.name = cursor.getString(cursor.getColumnIndex(MediaStore.MediaColumns.DISPLAY_NAME));
+        videoInfo.size = cursor.getLong(cursor.getColumnIndex(MediaStore.MediaColumns.SIZE));
+        return videoInfo;
+    }
 
 
     public ContentValues toContentValues() {
@@ -42,7 +51,7 @@ public class VideoInfoBean implements Parcelable{
         contentValues.put(MagicLiveContract.VideoContract.VIDEO_SIZE, size);
         contentValues.put(MagicLiveContract.VideoContract.VIDEO_START_TIME, startTime);
         contentValues.put(MagicLiveContract.VideoContract.VIDEO_VOLUME, volume);
-        contentValues.put(MagicLiveContract.VideoContract.VIDEO_PREVIEW, isPreview ? 1 : 0);
+        contentValues.put(MagicLiveContract.VideoContract.VIDEO_TIME, updateTime);
         return contentValues;
     }
 
@@ -55,7 +64,35 @@ public class VideoInfoBean implements Parcelable{
         size = cursor.getLong(cursor.getColumnIndexOrThrow(MagicLiveContract.VideoContract.VIDEO_SIZE));
         startTime = cursor.getLong(cursor.getColumnIndexOrThrow(MagicLiveContract.VideoContract.VIDEO_START_TIME));
         volume = cursor.getInt(cursor.getColumnIndexOrThrow(MagicLiveContract.VideoContract.VIDEO_VOLUME));
-        isPreview = cursor.getInt(cursor.getColumnIndexOrThrow(MagicLiveContract.VideoContract.VIDEO_PREVIEW)) == 1;
+        updateTime = cursor.getInt(cursor.getColumnIndexOrThrow(MagicLiveContract.VideoContract.VIDEO_TIME));
+    }
+
+    public static String getName(Cursor cursor) {
+        return cursor.getString(cursor.getColumnIndexOrThrow(MagicLiveContract.VideoContract.VIDEO_NAME));
+    }
+
+    public static boolean isSelection(Cursor cursor) {
+        return cursor.getInt(cursor.getColumnIndexOrThrow(MagicLiveContract.VideoContract.VIDEO_SELECT)) == 1;
+    }
+
+    public static long getSize(Cursor cursor) {
+        return cursor.getLong(cursor.getColumnIndexOrThrow(MagicLiveContract.VideoContract.VIDEO_SIZE));
+    }
+
+    public static String getPath(Cursor cursor) {
+        return cursor.getString(cursor.getColumnIndexOrThrow(MagicLiveContract.VideoContract.VIDEO_PATH));
+    }
+
+    public static long getStartTime(Cursor cursor) {
+        return cursor.getLong(cursor.getColumnIndexOrThrow(MagicLiveContract.VideoContract.VIDEO_START_TIME));
+    }
+
+    public static long getEndTime(Cursor cursor) {
+        return cursor.getLong(cursor.getColumnIndexOrThrow(MagicLiveContract.VideoContract.VIDEO_END_TIME));
+    }
+
+    public static long getDuration(Cursor cursor) {
+        return cursor.getLong(cursor.getColumnIndexOrThrow(MagicLiveContract.VideoContract.VIDEO_DURATION));
     }
 
     public VideoInfoBean() {
@@ -76,7 +113,7 @@ public class VideoInfoBean implements Parcelable{
         dest.writeLong(this.duration);
         dest.writeByte(this.isSelection ? (byte) 1 : (byte) 0);
         dest.writeInt(this.volume);
-        dest.writeByte(this.isPreview ? (byte) 1 : (byte) 0);
+        dest.writeLong(this.updateTime);
     }
 
     protected VideoInfoBean(Parcel in) {
@@ -88,7 +125,7 @@ public class VideoInfoBean implements Parcelable{
         this.duration = in.readLong();
         this.isSelection = in.readByte() != 0;
         this.volume = in.readInt();
-        this.isPreview = in.readByte() != 0;
+        this.updateTime = in.readLong();
     }
 
     public static final Creator<VideoInfoBean> CREATOR = new Creator<VideoInfoBean>() {

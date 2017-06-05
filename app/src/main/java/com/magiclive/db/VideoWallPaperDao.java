@@ -15,6 +15,8 @@ public class VideoWallPaperDao {
     public static void setVideoWallPaper(Context context, VideoInfoBean videoInfoBean) {
         Cursor cursor = null;
         try {
+            videoInfoBean.updateTime = System.currentTimeMillis();
+
             String selection = MagicLiveContract.VideoContract.VIDEO_NAME + " = ? and "
                     + MagicLiveContract.VideoContract.VIDEO_SIZE + " = ? ";
             String selectionArgs[] = new String[]{videoInfoBean.name, String.valueOf(videoInfoBean.size)};

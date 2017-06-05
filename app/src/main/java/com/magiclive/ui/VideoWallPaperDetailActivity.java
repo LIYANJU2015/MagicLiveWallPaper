@@ -1,4 +1,4 @@
-package com.magiclive;
+package com.magiclive.ui;
 
 import android.app.Activity;
 import android.content.Context;
@@ -12,6 +12,8 @@ import android.widget.SeekBar;
 import android.widget.VideoView;
 
 
+import com.magiclive.AppApplication;
+import com.magiclive.R;
 import com.magiclive.bean.VideoInfoBean;
 import com.magiclive.db.VideoWallPaperDao;
 import com.magiclive.service.VideoLiveWallPaperService;
@@ -157,9 +159,7 @@ public class VideoWallPaperDetailActivity extends AppCompatActivity implements M
         super.onActivityResult(requestCode, resultCode, data);
         LogUtils.v("onActivityResult", " requestCode " + requestCode + " resultCode " + resultCode);
         if (resultCode == Activity.RESULT_OK) {
-            curVideoInfo.isPreview = false;
             VideoLiveWallPaperService.setVideoWallpaper(context, curVideoInfo);
-            finish();
             ((AppApplication)getApplication()).getAppManager().killAll();
         }
     }
@@ -209,6 +209,7 @@ public class VideoWallPaperDetailActivity extends AppCompatActivity implements M
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        UIThreadHelper.getInstance().getHandler().removeCallbacks(this);
     }
 
     @Override

@@ -1,58 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:id="@+id/activity_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    android:background="@android:color/white"
     >
-
-    <Button
-        android:id="@+id/video_btn22"
-        android:text="透明壁纸"
+    <android.support.design.widget.TabLayout
+        android:id="@+id/main_tablayout"
+        style="@style/TabLayoutStyle"
+        app:tabIndicatorColor="@color/colorAccent"
+        android:background="@color/material_white"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"/>
 
-    <Button
-        android:id="@+id/video_btn33"
-        android:text="镜子壁纸"
+    <android.support.v4.view.ViewPager
+        android:paddingTop="5dp"
+        android:paddingBottom="5dp"
+        android:id="@+id/main_viewPager"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-
-    <Button
-        android:text="video detaily"
-        android:id="@+id/btn22"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-
-    <RadioGroup
-        android:id="@+id/RadioGroup"
-        android:layout_marginTop="40dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:orientation="vertical" >
-
-        <RadioButton
-            android:checked="true"
-            android:text="/data/kids/data/x5b0cpy.mp4"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/raido1"
-            />
-        <RadioButton
-            android:text="/test1.mp4"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/raido2"
-            />
-
-    </RadioGroup>
-
-
+        android:layout_height="match_parent"/>
 </LinearLayout>

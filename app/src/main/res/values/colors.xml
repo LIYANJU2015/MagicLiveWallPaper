@@ -558,4 +558,11 @@
     <color name="material_black">#ff000000</color>
     <color name="material_white">#ffffffff</color>
     <color name="rippelColor">#f3f3f3</color>
+
+    <color name="color_00000050">#E6000000</color>
+    <color name="color_ffffff90">#0075c0</color>
+    <color name="color_ffffff15">#26FFFFFF</color>
+    <color name="color_444">#444</color>
+    <color name="guillotine_background">#444153</color>
+    <color name="guillotine_background_dark">#383547</color>
 </resources>
