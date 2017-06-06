@@ -10,6 +10,7 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.drawable.GlideDrawable;
@@ -22,6 +23,7 @@ import com.magiclive.R;
 import com.magiclive.adapter.AdapterViewPager;
 import com.magiclive.bean.VideoInfoBean;
 import com.magiclive.db.VideoWallPaperDao;
+import com.magiclive.ui.base.BaseActivity;
 import com.magiclive.util.SizeUtils;
 import com.magiclive.util.StatusBarColorCompat;
 
@@ -34,7 +36,7 @@ import static com.magiclive.util.LogUtils.D;
  * Created by liyanju on 2017/6/2.
  */
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends BaseActivity {
 
     private TabLayout mMainTabLayout;
 
@@ -56,8 +58,11 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mContext = getApplicationContext();
-        StatusBarColorCompat.setColor(this, R.color.colorPrimaryDark);
+
         setContentView(R.layout.activity_main);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_actionbar);
+        setSupportActionBar(toolbar);
 
         mMainViewPager = (ViewPager) findViewById(main_viewPager);
         mAdapter = new AdapterViewPager(getSupportFragmentManager());

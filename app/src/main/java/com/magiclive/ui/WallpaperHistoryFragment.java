@@ -21,6 +21,7 @@ import com.bumptech.glide.Glide;
 import com.magiclive.R;
 import com.magiclive.bean.VideoInfoBean;
 import com.magiclive.db.MagicLiveContract;
+import com.magiclive.ui.base.BaseFragment;
 
 
 /**
@@ -33,7 +34,7 @@ public class WallpaperHistoryFragment extends BaseFragment implements LoaderMana
     private WallPaperHistoryAdapter mAdapter;
 
     @Override
-    void initView(View rootView) {
+    public void initView(View rootView) {
         mHistoryListView = (ListView)rootView.findViewById(R.id.history_listview);
         mAdapter = new WallPaperHistoryAdapter(mContext);
         mHistoryListView.setAdapter(mAdapter);
@@ -42,7 +43,7 @@ public class WallpaperHistoryFragment extends BaseFragment implements LoaderMana
     }
 
     @Override
-    int onLayoutRes() {
+    public int onLayoutRes() {
         return R.layout.live_wallpaper_history_layout;
     }
 
@@ -78,7 +79,7 @@ public class WallpaperHistoryFragment extends BaseFragment implements LoaderMana
         @Override
         public View newView(Context context, Cursor cursor, ViewGroup parent) {
             ViewHolder viewHolder = new ViewHolder();
-            View view  = LayoutInflater.from(mContext).inflate(R.layout.live_wallpaper_item, null);
+            View view  = LayoutInflater.from(mContext).inflate(R.layout.main_live_wallpaper_item, null);
             viewHolder.thumbnailIV = (ImageView) view.findViewById(R.id.thumbnail);
             viewHolder.titleTV = (TextView)view.findViewById(R.id.title);
             view.setTag(viewHolder);

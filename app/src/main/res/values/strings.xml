@@ -1,10 +1,17 @@
 <resources>
     <string name="app_name">MagicLiveWall</string>
 
-    <string name="history_record">History</string>
+    <string name="history_record">Video History</string>
     <string name="live_wallpaper">Live Wallpaper</string>
     <string name="mirror_wallpaper">Mirror Live Wallpaper</string>
     <string name="transperent_wallpaper">Transparency Live Wallpaper</string>
     <string name="video_wallpaper">Video Live Wallpaper</string>
+    <string name="search">Search</string>
+
+    <string name="action_sort_album">Album</string>
+    <string name="action_sort_artist">Artist</string>
+    <string name="action_sort_date">Date</string>
+    <string name="action_sort_duration">Duration</string>
+    <string name="action_sort_title">Title</string>
     
 </resources>

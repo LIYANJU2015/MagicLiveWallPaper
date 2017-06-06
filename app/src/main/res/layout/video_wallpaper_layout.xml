@@ -51,12 +51,12 @@
                 android:layout_height="90dp"
                 app:cellMode="number"
                 app:lineColorEdge="@color/colorSeekBarDefault"
-                app:lineColorSelected="@color/colorAccent"
+                app:lineColorSelected="@color/theme_primary"
                 app:seekBarHeight="4dp"
                 app:seekBarMode="range"
                 app:textPadding="17dp"
                 app:thumbPrimaryColor="@color/colorSeekBarDefault"
-                app:thumbSecondaryColor="@color/colorAccent"
+                app:thumbSecondaryColor="@color/theme_primary"
                 app:thumbSize="20dp" />
 
         </LinearLayout>

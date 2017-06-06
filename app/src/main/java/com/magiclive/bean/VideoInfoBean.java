@@ -37,6 +37,7 @@ public class VideoInfoBean implements Parcelable{
         videoInfo.path = cursor.getString(cursor.getColumnIndex(MediaStore.MediaColumns.DATA));
         videoInfo.name = cursor.getString(cursor.getColumnIndex(MediaStore.MediaColumns.DISPLAY_NAME));
         videoInfo.size = cursor.getLong(cursor.getColumnIndex(MediaStore.MediaColumns.SIZE));
+        videoInfo.duration = cursor.getLong(cursor.getColumnIndex(MediaStore.Video.VideoColumns.DURATION));
         return videoInfo;
     }
 

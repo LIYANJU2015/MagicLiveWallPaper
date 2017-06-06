@@ -1,4 +1,4 @@
-package com.magiclive.ui;
+package com.magiclive.ui.base;
 
 import android.app.Activity;
 import android.content.Context;
@@ -41,9 +41,9 @@ public abstract class BaseFragment extends Fragment {
         initData();
     }
 
-    abstract void initView(View rootView);
+    public abstract void initView(View rootView);
 
-    abstract int onLayoutRes();
+    public abstract int onLayoutRes();
 
     public void initData(){
 

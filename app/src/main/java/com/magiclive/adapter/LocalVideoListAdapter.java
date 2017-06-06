@@ -48,7 +48,6 @@ public class LocalVideoListAdapter extends RecyclerViewCursorAdapter<ViewHolder>
         holder.setOnClickListener(R.id.item_card_view, new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-                Cursor cursor = (Cursor) v.getTag();
                 VideoWallPaperDetailActivity.launch(mContext, videoInfoBean);
             }
         });

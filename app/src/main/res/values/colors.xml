@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#3F51B5</color>
-    <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorAccent">#FF4081</color>
+    <color name="colorPrimary">@color/theme_primary</color>
+    <color name="colorPrimaryDark">@color/theme_primary_dark</color>
+    <color name="colorAccent">@color/theme_primary</color>
 
     <color name="colorSeekBarDefault">#c3c3c3</color>
 
@@ -565,4 +565,23 @@
     <color name="color_444">#444</color>
     <color name="guillotine_background">#444153</color>
     <color name="guillotine_background_dark">#383547</color>
+
+    <!--- google io-->
+
+    <color name="app_primary_accent">#FF26C6DA</color>
+    <color name="flat_button_text">#ff008094</color>
+    <color name="body_text_1">#de000000</color>
+    <color name="tab_background">@color/theme_primary</color>
+    <color name="tab_selected_strip">@android:color/white</color>
+    <color name="unselected_tab_on_primary">#b3004446</color>
+    <color name="video_title">#de07434d</color>
+
+    <color name="theme_primary_dark">#00BCD4</color>
+    <color name="text_on_primary">#ff004446</color>
+    <color name="subtitle_on_primary">#de004446</color>
+    <color name="grey_background">#f5f5f5</color>
+    <color name="theme_accent_2">#e91e63</color>
+    <color name="theme_primary">@color/app_primary_accent</color>
+    <color name="card">#fff</color>
+
 </resources>

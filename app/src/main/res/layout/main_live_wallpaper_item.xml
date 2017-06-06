@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <android.support.v7.widget.CardView
+        android:clickable="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/padding_normal"
+        app:cardBackgroundColor="@color/card"
+        app:cardCornerRadius="0dp"
+        app:cardElevation="2dp">
+
+        <com.magiclive.widget.ForegroundLinearLayout
+            android:id="@+id/item_card_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?android:selectableItemBackground"
+            android:orientation="vertical">
+
+            <com.magiclive.widget.AspectRatioView
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                app:aspectRatio="@dimen/aspect_16_9">
+
+                <ImageView
+                    android:id="@+id/thumbnail"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/video_thumbnail_default" />
+
+            </com.magiclive.widget.AspectRatioView>
+
+            <TextView
+                android:id="@+id/title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:maxLines="2"
+                android:textColor="@color/body_text_1"
+                android:textSize="@dimen/text_size_xlarge"
+                tools:text="title" />
+
+        </com.magiclive.widget.ForegroundLinearLayout>
+
+
+    </android.support.v7.widget.CardView>
+</LinearLayout>

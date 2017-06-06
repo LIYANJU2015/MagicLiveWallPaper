@@ -1,9 +1,11 @@
 package com.magiclive;
 
+import android.app.Activity;
 import android.app.WallpaperManager;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.hardware.Camera;
+import android.util.TypedValue;
 
 import static android.app.WallpaperManager.ACTION_CHANGE_LIVE_WALLPAPER;
 
@@ -25,14 +27,24 @@ public class WallPaperUtils {
         return intent;
     }
 
-    public static int findFrontCamera(){
+    public static int getActionBarHeight(Activity activity) {
+        TypedValue tv = new TypedValue();
+        int actionBarHeight = 0;
+        if (activity.getTheme().resolveAttribute(android.R.attr.actionBarSize, tv, true)) {
+            actionBarHeight = TypedValue.complexToDimensionPixelSize(tv.data,
+                    activity.getResources().getDisplayMetrics());
+        }
+        return actionBarHeight;
+    }
+
+    public static int findFrontCamera() {
         int cameraCount = 0;
         Camera.CameraInfo cameraInfo = new Camera.CameraInfo();
         cameraCount = Camera.getNumberOfCameras(); // get cameras number
 
-        for ( int camIdx = 0; camIdx < cameraCount;camIdx++ ) {
-            Camera.getCameraInfo( camIdx, cameraInfo ); // get camerainfo
-            if ( cameraInfo.facing ==Camera.CameraInfo.CAMERA_FACING_FRONT ) {
+        for (int camIdx = 0; camIdx < cameraCount; camIdx++) {
+            Camera.getCameraInfo(camIdx, cameraInfo); // get camerainfo
+            if (cameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
                 // 代表摄像头的方位，目前有定义值两个分别为CAMERA_FACING_FRONT前置和CAMERA_FACING_BACK后置
                 return camIdx;
             }

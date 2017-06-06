@@ -9,6 +9,7 @@ import com.magiclive.WallPaperUtils;
 import com.magiclive.bean.LiveWallPaperBean;
 import com.magiclive.service.MirrorLiveWallPaperService;
 import com.magiclive.service.TransparentLiveWallPaperService;
+import com.magiclive.ui.base.BaseFragment;
 import com.zhy.adapter.recyclerview.CommonAdapter;
 import com.zhy.adapter.recyclerview.base.ViewHolder;
 
@@ -25,7 +26,7 @@ public class WallpaperListFragment extends BaseFragment {
     private ArrayList<LiveWallPaperBean> mList = new ArrayList<>();
 
     @Override
-    void initView(View rootView) {
+    public void initView(View rootView) {
         listRecyclerView = (RecyclerView)rootView.findViewById(R.id.wallpaper_list_recyclerview);
         listRecyclerView.setHasFixedSize(true);
         listRecyclerView.setLayoutManager(new LinearLayoutManager(mContext));
@@ -52,7 +53,7 @@ public class WallpaperListFragment extends BaseFragment {
         mList.add(liveWallPaperBean);
 
         listRecyclerView.setAdapter(new CommonAdapter<LiveWallPaperBean>(mContext,
-                R.layout.live_wallpaper_item, mList) {
+                R.layout.main_live_wallpaper_item, mList) {
             @Override
             protected void convert(ViewHolder holder, final LiveWallPaperBean bean, int position) {
                 holder.setText(R.id.title, bean.title);
@@ -77,7 +78,7 @@ public class WallpaperListFragment extends BaseFragment {
     }
 
     @Override
-    int onLayoutRes() {
+    public int onLayoutRes() {
         return R.layout.live_wallpaper_list;
     }
 }
