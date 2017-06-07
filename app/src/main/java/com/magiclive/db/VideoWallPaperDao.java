@@ -60,9 +60,8 @@ public class VideoWallPaperDao {
     public static VideoInfoBean getVideoWallPaper(Context context) {
         Cursor cursor = null;
         try {
-            String selection = MagicLiveContract.VideoContract.VIDEO_SELECT + " = 1";
             cursor = context.getContentResolver().query(MagicLiveContract.VideoContract.CONTENT_URI, null,
-                    selection, null, null);
+                    null, null, MagicLiveContract.VideoContract.VIDEO_TIME + " DESC ");
             if (cursor != null && cursor.getCount() > 0) {
                 cursor.moveToFirst();
                 VideoInfoBean videoInfoBean = new VideoInfoBean();
