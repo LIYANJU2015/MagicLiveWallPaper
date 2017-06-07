@@ -70,6 +70,7 @@ public class WallpaperHistoryFragment extends BaseFragment implements LoaderMana
 
             public TextView titleTV;
             public ImageView thumbnailIV;
+            public ImageView playIconIV;
         }
 
         public WallPaperHistoryAdapter(Context context) {
@@ -82,6 +83,7 @@ public class WallpaperHistoryFragment extends BaseFragment implements LoaderMana
             View view  = LayoutInflater.from(mContext).inflate(R.layout.main_live_wallpaper_item, null);
             viewHolder.thumbnailIV = (ImageView) view.findViewById(R.id.thumbnail);
             viewHolder.titleTV = (TextView)view.findViewById(R.id.title);
+            viewHolder.playIconIV = (ImageView)view.findViewById(R.id.play_icon_iv);
             view.setTag(viewHolder);
             return view;
         }
@@ -90,6 +92,12 @@ public class WallpaperHistoryFragment extends BaseFragment implements LoaderMana
         public void bindView(View view, Context context, Cursor cursor) {
             ViewHolder viewHolder = (ViewHolder)view.getTag();
             viewHolder.titleTV.setText(VideoInfoBean.getName(cursor));
+
+            if (VideoInfoBean.isSelection(cursor)) {
+                viewHolder.playIconIV.setVisibility(View.VISIBLE);
+            } else {
+                viewHolder.playIconIV.setVisibility(View.GONE);
+            }
 
             Glide.with(mActivity).load(VideoInfoBean.getPath(cursor))
                     .placeholder(R.drawable.video_thumbnail_default)

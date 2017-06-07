@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/body_text_1"
     android:gravity="center_horizontal">
 
-
-    <VideoView
+    <com.magiclive.widget.CustomVideoView
         android:id="@+id/video_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -15,49 +15,150 @@
 
 
     <com.magiclive.widget.ENPlayView
-        android:layout_gravity="center"
         android:id="@+id/play_view"
         android:layout_width="60dp"
-        android:layout_height="60dp" />
+        android:layout_height="60dp"
+        android:layout_gravity="center" />
 
 
     <FrameLayout
+        android:id="@+id/contentFrame"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_gravity="bottom">
-
-        <Button
-            android:id="@+id/set_btn"
-            android:text="SET"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+        android:layout_height="match_parent">
 
         <LinearLayout
-            android:layout_gravity="bottom"
-            android:orientation="vertical"
+            android:background="@drawable/video_title_bg"
+            android:id="@+id/video_wallpaper_top"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingLeft="35dp"
+            android:paddingRight="35dp"
+            android:paddingBottom="20dp"
+            android:layout_gravity="top"
+            >
 
-            <android.support.v7.widget.AppCompatSeekBar
-                android:layout_marginTop="50dp"
-                android:id="@+id/seekbar"
-                android:max="100"
+            <TextView
+                android:id="@+id/title"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:ellipsize="end"
+                android:fontFamily="sans-serif"
+                android:gravity="center"
+                android:maxLines="2"
+                android:textColor="@color/colorPrimaryDark"
+                android:textSize="@dimen/text_size_xlarge" />
 
-            <com.magiclive.widget.RangeSeekBar
-                android:id="@+id/seekbar1"
+            <Button
+                android:id="@+id/set_btn"
                 android:layout_width="match_parent"
-                android:layout_height="90dp"
-                app:cellMode="number"
-                app:lineColorEdge="@color/colorSeekBarDefault"
-                app:lineColorSelected="@color/theme_primary"
-                app:seekBarHeight="4dp"
-                app:seekBarMode="range"
-                app:textPadding="17dp"
-                app:thumbPrimaryColor="@color/colorSeekBarDefault"
-                app:thumbSecondaryColor="@color/theme_primary"
-                app:thumbSize="20dp" />
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/video_set_button_selector"
+                android:fontFamily="sans-serif-medium"
+                android:text="@string/set_video_wallpaper"
+                android:textColor="@color/colorPrimary" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/video_wallpaper_bottom"
+            android:background="@drawable/video_bottom_bg"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:orientation="vertical">
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_marginTop="10dp"
+                    android:id="@+id/volume_tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="17dp"
+                    android:fontFamily="sans-serif-light"
+                    android:text="@string/volume_text"
+                    android:textColor="@color/colorAccent"
+                    android:textSize="@dimen/text_size_large" />
+
+                <com.magiclive.widget.RangeSeekBar
+                    android:id="@+id/volume_seekbar"
+                    android:layout_width="match_parent"
+                    android:layout_height="70dp"
+                    app:lineColorEdge="@color/colorSeekBarDefault"
+                    app:lineColorSelected="@color/theme_primary"
+                    app:max="100"
+                    app:min="0"
+                    app:seekBarHeight="4dp"
+                    app:seekBarMode="single"
+                    app:textPadding="17dp"
+                    app:thumbPrimaryColor="@color/color_ffffff15"
+                    app:thumbSize="20dp" />
+            </FrameLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <com.magiclive.widget.RangeSeekBar
+                    android:id="@+id/range_seekbar"
+                    android:layout_width="match_parent"
+                    android:layout_height="70dp"
+                    app:cellMode="number"
+                    app:lineColorEdge="@color/colorSeekBarDefault"
+                    app:lineColorSelected="@color/theme_primary"
+                    app:seekBarHeight="4dp"
+                    app:seekBarMode="range"
+                    app:textPadding="17dp"
+                    app:thumbPrimaryColor="@color/color_ffffff15"
+                    app:thumbSecondaryColor="@color/color_ffffff15"
+                    app:thumbSize="20dp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="20dp"
+                    android:layout_marginLeft="17dp"
+                    android:layout_marginRight="17dp"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/start_time"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:fontFamily="sans-serif-light"
+                        android:gravity="left"
+                        android:textColor="@color/colorAccent"
+                        android:textSize="@dimen/text_size_large" />
+
+                    <TextView
+                        android:id="@+id/run_time"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:fontFamily="sans-serif-light"
+                        android:gravity="center"
+                        android:textColor="@color/colorAccent"
+                        android:textSize="@dimen/text_size_large" />
+
+                    <TextView
+                        android:id="@+id/end_time"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:fontFamily="sans-serif-light"
+                        android:gravity="right"
+                        android:textColor="@color/colorAccent"
+                        android:textSize="@dimen/text_size_large" />
+
+                </LinearLayout>
+
+            </LinearLayout>
 
         </LinearLayout>
 

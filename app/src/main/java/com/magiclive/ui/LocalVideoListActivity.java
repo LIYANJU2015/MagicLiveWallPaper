@@ -91,7 +91,8 @@ public class LocalVideoListActivity extends BaseActivity implements LoaderManage
             }
 
             @Override
-            public boolean onQueryTextChange(String s) {
+            public boolean onQueryTextChange(String content) {
+                selectionChangeRestartLoader(content, null);
                 return false;
             }
         });
@@ -155,8 +156,15 @@ public class LocalVideoListActivity extends BaseActivity implements LoaderManage
                 selectionChangeRestartLoader(null, "title ASC");
                 return true;
             case R.id.action_sort_artist:
-                mOrderContent = "artist ASC";
                 selectionChangeRestartLoader(null, "artist ASC");
+                return true;
+            case R.id.menu_record_video:
+                Intent intent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
+                intent.putExtra(android.provider.MediaStore.EXTRA_SIZE_LIMIT,
+                        768000);
+                intent.putExtra(
+                        android.provider.MediaStore.EXTRA_DURATION_LIMIT, 45000);
+                startActivityForResult(intent, 1);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

@@ -13,5 +13,8 @@
     <string name="action_sort_date">Date</string>
     <string name="action_sort_duration">Duration</string>
     <string name="action_sort_title">Title</string>
+
+    <string name="set_video_wallpaper">Set LiveWallpaper</string>
+    <string name="volume_text">Volume %s</string>
     
 </resources>

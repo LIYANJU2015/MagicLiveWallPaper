@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.MediaPlayer;
+import android.os.AsyncTask;
 import android.service.wallpaper.WallpaperService;
 import android.text.TextUtils;
 import android.view.SurfaceHolder;
@@ -53,6 +54,7 @@ public class VideoLiveWallPaperService extends WallpaperService {
         private int start;
         private int end;
         private int volume;
+        private VideoInfoBean curVideoInfoBean;
 
         private BroadcastReceiver mVideoParamsControlReceiver;
 
@@ -70,6 +72,7 @@ public class VideoLiveWallPaperService extends WallpaperService {
             start = (int)videoInfoBean.startTime;
             end = (int)videoInfoBean.endTime;
             volume = videoInfoBean.volume;
+            curVideoInfoBean = videoInfoBean;
         }
 
         @Override
@@ -106,10 +109,11 @@ public class VideoLiveWallPaperService extends WallpaperService {
                     if (VIDEO_VOLUME_ACTION.equals(intent.getAction())) {
                         setPlayerVolume();
                     } else if (VIDEO_SET_ACTION.equals(intent.getAction())) {
-                        VideoInfoBean videoInfoBean = intent.getParcelableExtra("VideoInfo");
-                        LogUtils.v("registerReceiver", "onReceive newPath " + videoInfoBean.path + " path " + path);
-                        if (!videoInfoBean.path.equals(path)) {
-                            initVideoWallPaperParam(videoInfoBean);
+                        curVideoInfoBean = intent.getParcelableExtra("VideoInfo");
+                        LogUtils.v("registerReceiver", "onReceive newPath " + curVideoInfoBean.path
+                                + " path " + path);
+                        if (!curVideoInfoBean.path.equals(path)) {
+                            initVideoWallPaperParam(curVideoInfoBean);
                             releasePlayer();
                             initMediaPlayer();
                             if (!isVisible()) {
@@ -219,7 +223,7 @@ public class VideoLiveWallPaperService extends WallpaperService {
         @Override
         public void onSurfaceDestroyed(SurfaceHolder holder) {
             super.onSurfaceDestroyed(holder);
-            LogUtils.v("VideoEngine", "onSurfaceDestroyed " + hashCode());
+            LogUtils.v("VideoEngine", "onSurfaceDestroyed " + hashCode() + " isPreview() " + isPreview());
             releasePlayer();
         }
 

@@ -1,9 +1,14 @@
 package com.magiclive.ui;
 
+import android.provider.MediaStore;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.magiclive.R;
 import com.magiclive.WallPaperUtils;
 import com.magiclive.bean.LiveWallPaperBean;
@@ -14,6 +19,9 @@ import com.zhy.adapter.recyclerview.CommonAdapter;
 import com.zhy.adapter.recyclerview.base.ViewHolder;
 
 import java.util.ArrayList;
+
+import static android.R.attr.path;
+import static com.magiclive.bean.LiveWallPaperBean.VIDEO_LIVE_WALLPAPER;
 
 /**
  * Created by liyanju on 2017/6/5.
@@ -49,7 +57,7 @@ public class WallpaperListFragment extends BaseFragment {
 
         liveWallPaperBean = new LiveWallPaperBean();
         liveWallPaperBean.title = getString(R.string.video_wallpaper);
-        liveWallPaperBean.type = LiveWallPaperBean.VIDEO_LIVE_WALLPAPER;
+        liveWallPaperBean.type = VIDEO_LIVE_WALLPAPER;
         mList.add(liveWallPaperBean);
 
         listRecyclerView.setAdapter(new CommonAdapter<LiveWallPaperBean>(mContext,
@@ -57,6 +65,24 @@ public class WallpaperListFragment extends BaseFragment {
             @Override
             protected void convert(ViewHolder holder, final LiveWallPaperBean bean, int position) {
                 holder.setText(R.id.title, bean.title);
+
+                if (bean.type == VIDEO_LIVE_WALLPAPER) {
+                    if (bean.videoInfoBean == null) {
+                        bean.setLastSDCardVideoInfo(mContext);
+                    }
+                    if (bean.videoInfoBean != null && !TextUtils.isEmpty(bean.videoInfoBean.path)) {
+                        ImageView thumbnailIV = holder.getView(R.id.thumbnail);
+                        Glide.with(mActivity).load(bean.videoInfoBean.path)
+                                .placeholder(R.drawable.video_thumbnail_default)
+                                .error(R.drawable.video_thumbnail_default).crossFade()
+                                .into(thumbnailIV);
+                        holder.getView(R.id.description).setVisibility(View.VISIBLE);
+                        ((TextView)holder.getView(R.id.description)).setText(bean.videoInfoBean.path);
+                    }
+                } else {
+                    holder.getView(R.id.description).setVisibility(View.GONE);
+                }
+
                 holder.setOnClickListener(R.id.item_card_view, new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -67,7 +93,7 @@ public class WallpaperListFragment extends BaseFragment {
                             case LiveWallPaperBean.TRANSPARENT_LIVE_WALLPAPER:
                                 TransparentLiveWallPaperService.startTransparentWallpaperPreView(mContext);
                                 break;
-                            case LiveWallPaperBean.VIDEO_LIVE_WALLPAPER:
+                            case VIDEO_LIVE_WALLPAPER:
                                 LocalVideoListActivity.launch(mContext);
                                 break;
                         }

@@ -79,39 +79,10 @@ public class MainActivity extends BaseActivity {
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        updateBGThumbnail();
-    }
-
-    @Override
     protected void onDestroy() {
         super.onDestroy();
         if (mUpdateBGTask != null) {
             mUpdateBGTask.cancel(true);
         }
-    }
-
-    private void updateBGThumbnail() {
-        mUpdateBGTask = new AsyncTask<Void, Void,VideoInfoBean>(){
-            @Override
-            protected VideoInfoBean doInBackground(Void... params) {
-                return VideoWallPaperDao.getVideoWallPaper(mContext);
-            }
-
-            @Override
-            protected void onPostExecute(VideoInfoBean videoInfoBean) {
-                super.onPostExecute(videoInfoBean);
-                if (videoInfoBean != null && !MainActivity.this.isFinishing()) {
-                    Glide.with(MainActivity.this).load(videoInfoBean.path).asBitmap().into(new SimpleTarget<Bitmap>() {
-                        @Override
-                        public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
-                            ViewCompat.setBackground(mMainViewPager,
-                                    new BitmapDrawable(mContext.getResources(), resource));
-                        }
-                    });
-                }
-            }
-        }.execute();
     }
 }

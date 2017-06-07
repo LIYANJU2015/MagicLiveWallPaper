@@ -12,6 +12,13 @@ import com.magiclive.bean.VideoInfoBean;
 
 public class VideoWallPaperDao {
 
+    public static void removeVideoWallPager(Context context, VideoInfoBean videoInfoBean) {
+        String selection = MagicLiveContract.VideoContract.VIDEO_NAME + " = ? and "
+                + MagicLiveContract.VideoContract.VIDEO_SIZE + " = ? ";
+        String selectionArgs[] = new String[]{videoInfoBean.name, String.valueOf(videoInfoBean.size)};
+        context.getContentResolver().delete(MagicLiveContract.VideoContract.CONTENT_URI, selection, selectionArgs);
+    }
+
     public static void setVideoWallPaper(Context context, VideoInfoBean videoInfoBean) {
         Cursor cursor = null;
         try {
@@ -26,11 +33,6 @@ public class VideoWallPaperDao {
                 return;
             }
 
-            ContentValues contentValues = new ContentValues(1);
-            contentValues.put(MagicLiveContract.VideoContract.VIDEO_SELECT, 0);
-            context.getContentResolver().update(MagicLiveContract.VideoContract.CONTENT_URI,
-                    contentValues, MagicLiveContract.VideoContract.VIDEO_SELECT + " = 1", null);
-
             if ( cursor.getCount() > 0) {
                 context.getContentResolver().update(MagicLiveContract.VideoContract.CONTENT_URI,
                         videoInfoBean.toContentValues(), selection, selectionArgs);
@@ -42,6 +44,17 @@ public class VideoWallPaperDao {
                 cursor.close();
             }
         }
+    }
+
+    public static void setOtherVideoNoSelect(Context context, VideoInfoBean videoInfoBean) {
+        ContentValues contentValues = new ContentValues(1);
+        String selection = MagicLiveContract.VideoContract.VIDEO_NAME + " != ? and "
+                + MagicLiveContract.VideoContract.VIDEO_SIZE + " != ? ";
+        String selectionArgs[] = new String[]{videoInfoBean.name, String.valueOf(videoInfoBean.size)};
+
+        contentValues.put(MagicLiveContract.VideoContract.VIDEO_SELECT, 0);
+        context.getContentResolver().update(MagicLiveContract.VideoContract.CONTENT_URI,
+                contentValues, selection, selectionArgs);
     }
 
     public static VideoInfoBean getVideoWallPaper(Context context) {

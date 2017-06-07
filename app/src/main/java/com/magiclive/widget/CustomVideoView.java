@@ -5,6 +5,7 @@ import android.util.AttributeSet;
 import android.widget.VideoView;
 
 import com.magiclive.util.LogUtils;
+import com.magiclive.util.ScreenUtils;
 
 /**
  * Created by liyanju on 2017/6/3.
@@ -27,16 +28,17 @@ public class CustomVideoView extends VideoView{
 
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         LogUtils.v("onMeasure " + videowidth + " videoheight " + videoheight);
-        int defaultwidth = getDefaultSize(this.videowidth, widthMeasureSpec);
-        int defaultheight = getDefaultSize(this.videoheight, heightMeasureSpec);
-        if (this.videowidth > 0 && this.videoheight > 0) {
-            if (this.videowidth * defaultheight > this.videoheight * defaultwidth) {
-                defaultheight = (this.videoheight * defaultwidth) / this.videowidth;
-            } else if (this.videowidth * defaultheight < this.videoheight * defaultwidth) {
-                defaultwidth = (this.videowidth * defaultheight) / this.videoheight;
-            }
-        }
-        LogUtils.v("onMeasure22 " + defaultwidth + " defaultheight " + defaultheight);
-        setMeasuredDimension(defaultwidth, defaultheight);
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+//        int defaultwidth = getDefaultSize(this.videowidth, widthMeasureSpec);
+//        int defaultheight = getDefaultSize(this.videoheight, heightMeasureSpec);
+//        if (this.videowidth > 0 && this.videoheight > 0) {
+//            if (this.videowidth * defaultheight > this.videoheight * defaultwidth) {
+//                defaultheight = (this.videoheight * defaultwidth) / this.videowidth;
+//            } else if (this.videowidth * defaultheight < this.videoheight * defaultwidth) {
+//                defaultwidth = (this.videowidth * defaultheight) / this.videoheight;
+//            }
+//        }
+//        LogUtils.v("onMeasure22 " + defaultwidth + " defaultheight " + defaultheight);
+        setMeasuredDimension(ScreenUtils.getScreenWidth(), ScreenUtils.getScreenHeight());
     }
 }

@@ -44,7 +44,7 @@
         <item name="android:editTextBackground">@drawable/edit_text</item>
         <item name="android:editTextStyle">@style/Widget.IOSched.EditText</item>
     </style>
-    <style name="Theme.IOSched.Base" parent="Theme">
+    <style name="Theme.Livewall.Base" parent="Theme">
         <item name="actionBarIconColor">#fff</item>
         <item name="actionBarInsetStart">@dimen/keyline_2</item>
         <item name="homeAsUpIndicator">@drawable/ic_up</item>
@@ -73,9 +73,9 @@
         <item name="imageItemBackground">?android:selectableItemBackground</item>
         <item name="android:borderlessButtonStyle">@style/Widget.AppCompat.Button.Borderless</item>
     </style>
-    <style name="Theme.IOSched" parent="Theme.IOSched.Base" />
-    <style name="Theme.IOSched.WithNavDrawer" parent="Theme.IOSched" />
-    <style name="Theme.IOSched.Sessions" parent="Theme.IOSched.WithNavDrawer">
+    <style name="Theme.Livewall" parent="Theme.Livewall.Base" />
+    <style name="Theme.LiveWall.WithNavDrawer" parent="Theme.Livewall" />
+    <style name="Theme.Livewall.Page" parent="Theme.LiveWall.WithNavDrawer">
         <item name="actionBarInsetStart">@dimen/keyline_2_minus_16dp</item>
         <item name="spinnerBarInsetStart">@dimen/keyline_2_minus_16dp</item>
         <item name="android:windowBackground">@color/grey_background</item>
@@ -97,6 +97,12 @@
         <item name="android:textSize">14sp</item> <!-- bug in AppCompat, can remove this when it's fixed -->
         <item name="android:fontFamily">sans-serif-medium</item>
         <item name="android:textColor">?android:textColorSecondary</item>
+    </style>
+
+    <style name="AppTheme.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+
     </style>
 
 </resources>
