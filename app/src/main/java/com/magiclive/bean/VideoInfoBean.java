@@ -2,6 +2,7 @@ package com.magiclive.bean;
 
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.media.MediaPlayer;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.provider.MediaStore;
@@ -31,6 +32,8 @@ public class VideoInfoBean implements Parcelable{
     public int volume;
 
     public long updateTime;
+
+    public int scalingMode = MediaPlayer.VIDEO_SCALING_MODE_SCALE_TO_FIT;
 
     public static VideoInfoBean mediaInfoToVideoInfo(Cursor cursor) {
         VideoInfoBean videoInfo = new VideoInfoBean();
@@ -115,6 +118,7 @@ public class VideoInfoBean implements Parcelable{
         dest.writeByte(this.isSelection ? (byte) 1 : (byte) 0);
         dest.writeInt(this.volume);
         dest.writeLong(this.updateTime);
+        dest.writeInt(this.scalingMode);
     }
 
     protected VideoInfoBean(Parcel in) {
@@ -127,6 +131,7 @@ public class VideoInfoBean implements Parcelable{
         this.isSelection = in.readByte() != 0;
         this.volume = in.readInt();
         this.updateTime = in.readLong();
+        this.scalingMode = in.readInt();
     }
 
     public static final Creator<VideoInfoBean> CREATOR = new Creator<VideoInfoBean>() {

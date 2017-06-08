@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginLeft="10dp"
+    android:layout_marginRight="10dp">
+
+
+    <android.support.v7.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_margin="5dip"
+        app:cardBackgroundColor="@color/material_white"
+        app:cardElevation="2dip">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@mipmap/ic_launcher" />
+
+                <TextView
+                    android:id="@+id/title_tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="12dp"
+                    android:gravity="center"
+                    android:text="@string/rating_title"
+                    android:textAllCaps="true"
+                    android:textColor="@color/video_title"
+                    android:textSize="22sp" />
+
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
+                android:layout_marginTop="16dp"
+                android:fontFamily="Roboto-Regular"
+                android:lineSpacingExtra="4dp"
+                android:gravity="center"
+                android:lines="3"
+                android:text="@string/rating_content"
+                android:textColor="@color/body_text_1"
+                android:textSize="14sp" />
+
+            <LinearLayout
+                android:layout_width="320dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <com.magiclive.widget.StarPointContainer
+                    android:id="@+id/star1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="10dp">
+
+                    <ImageView
+                        android:id="@+id/star_iv1"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_margin="7dp"
+                        android:src="@drawable/ic_rating_star_null" />
+
+                </com.magiclive.widget.StarPointContainer>
+
+                <com.magiclive.widget.StarPointContainer
+                    android:id="@+id/star2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="10dp">
+
+                    <ImageView
+                        android:id="@+id/star_iv2"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_margin="7dp"
+                        android:src="@drawable/ic_rating_star_null" />
+
+                </com.magiclive.widget.StarPointContainer>
+
+                <com.magiclive.widget.StarPointContainer
+                    android:id="@+id/star3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="10dp">
+
+                    <ImageView
+                        android:id="@+id/star_iv3"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_margin="7dp"
+                        android:src="@drawable/ic_rating_star_null" />
+
+                </com.magiclive.widget.StarPointContainer>
+
+                <com.magiclive.widget.StarPointContainer
+                    android:id="@+id/star4"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="10dp">
+
+                    <ImageView
+                        android:id="@+id/star_iv4"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_margin="7dp"
+                        android:src="@drawable/ic_rating_star_null" />
+
+                </com.magiclive.widget.StarPointContainer>
+
+
+                <com.magiclive.widget.StarPointContainer
+                    android:id="@+id/star5"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    >
+
+                    <ImageView
+                        android:id="@+id/star_iv5"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_margin="7dp"
+                        android:src="@drawable/ic_rating_star_null" />
+
+                </com.magiclive.widget.StarPointContainer>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp"
+                android:layout_marginTop="24dp">
+
+                <RelativeLayout
+                    style="@style/WhiteRoundCornerButtonStyle"
+                    android:layout_width="0dp"
+                    android:layout_marginLeft="16dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/round_corner_negative_btn_bg2"
+                    android:onClick="onRatingButton1to4Clicked">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:drawableLeft="@drawable/ic_rating_angry"
+                        android:drawablePadding="6dp"
+                        android:ellipsize="end"
+                        android:fontFamily="Roboto-Medium"
+                        android:gravity="center"
+                        android:maxLines="1"
+                        android:text="@string/rating_btn_complain"
+                        android:textAllCaps="true"
+                        android:textColor="@color/material_white"
+                        android:textSize="14sp" />
+                </RelativeLayout>
+
+                <RelativeLayout
+                    style="@style/WhiteRoundCornerButtonStyle"
+                    android:layout_width="0dp"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginRight="16dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/round_corner_negative_btn_bg2"
+                    android:onClick="onRatingButtonClicked">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:drawableLeft="@drawable/ic_rating_laugh"
+                        android:drawablePadding="6dp"
+                        android:ellipsize="end"
+                        android:fontFamily="Roboto-Medium"
+                        android:gravity="center"
+                        android:maxLines="1"
+                        android:text="@string/rating_btn_satisfy"
+                        android:textAllCaps="true"
+                        android:textColor="@color/material_white"
+                        android:textSize="14sp" />
+                </RelativeLayout>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|right"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:onClick="onDismissButtonClicked"
+            android:padding="16dp"
+            android:scaleType="center"
+            android:src="@drawable/fw_close" />
+
+        <ImageView
+            android:id="@+id/handle_icon_iv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|right"
+            android:layout_marginBottom="40dp"
+            android:layout_marginRight="10dp"
+            android:rotation="-40"
+            android:src="@drawable/hand_icon" />
+
+    </android.support.v7.widget.CardView>
+</FrameLayout>

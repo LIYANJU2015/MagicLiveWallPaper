@@ -44,4 +44,13 @@ public class AppApplication extends Application{
         appManager = new AppManager(this);
         registerActivityLifecycleCallbacks(new ActivityLifecycle(appManager));
     }
+
+    public static boolean isShowRatingDialog() {
+        return sSPUtils.getInt("ratingcount", 0) < 3;
+    }
+    public static void setShowRatingDialog() {
+        int count = sSPUtils.getInt("ratingcount", 0);
+        count++;
+        sSPUtils.put("ratingcount", count);
+    }
 }

@@ -16,5 +16,14 @@
 
     <string name="set_video_wallpaper">Set LiveWallpaper</string>
     <string name="volume_text">Volume %s</string>
+    <string name="apply_text">APPLY</string>
+    <string name="apply_success_text">applay success</string>
+
+    <string name="rating_title">LIKE %s</string>
+    <string name="rating_content">We helped you set up a video wallpaper and would you like to give us a five star rating?</string>
+    <string name="rating_btn_complain">Complain</string>
+    <string name="rating_btn_satisfy">5 Star</string>
+    <string name="system_wallpaper">System Live Wallpaper</string>
+    <string name="share_content">Come and use it </string>
     
 </resources>

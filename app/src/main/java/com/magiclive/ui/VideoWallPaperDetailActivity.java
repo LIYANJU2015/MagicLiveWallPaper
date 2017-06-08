@@ -1,39 +1,35 @@
 package com.magiclive.ui;
 
-import android.animation.Animator;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Rect;
 import android.media.MediaPlayer;
 import android.os.Bundle;
-import android.support.v4.view.ViewCompat;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.animation.DecelerateInterpolator;
 import android.widget.Button;
-import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.VideoView;
 
 
 import com.magiclive.AppApplication;
+import com.magiclive.AppManager;
 import com.magiclive.R;
 import com.magiclive.bean.VideoInfoBean;
 import com.magiclive.db.VideoWallPaperDao;
 import com.magiclive.service.VideoLiveWallPaperService;
 import com.magiclive.util.LogUtils;
-import com.magiclive.util.MyAnimatorListener;
-import com.magiclive.util.MyViewPropertyAnimatorListener;
 import com.magiclive.util.SizeUtils;
 import com.magiclive.util.StatusBarColorCompat;
 import com.magiclive.util.TimeUtils;
+import com.magiclive.util.ToastUtils;
 import com.magiclive.util.UIThreadHelper;
 import com.magiclive.widget.ENPlayView;
 import com.magiclive.widget.RangeSeekBar;
 
-import org.w3c.dom.Text;
+import static android.icu.lang.UCharacter.GraphemeClusterBreak.T;
 
 
 /**
@@ -107,13 +103,26 @@ public class VideoWallPaperDetailActivity extends Activity implements MediaPlaye
         setBtn.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-                curVideoInfo.isSelection = true;
                 curVideoInfo.startTime = (long)curMin;
                 curVideoInfo.endTime = (long)curMax;
-                VideoWallPaperDao.setVideoWallPaper(context, curVideoInfo);
-                VideoLiveWallPaperService.startVideoWallpaperPreView(VideoWallPaperDetailActivity.this);
+                if (curVideoInfo.isSelection) {
+                    VideoLiveWallPaperService.updateVideoWallpaper(context, curVideoInfo);
+                    ToastUtils.showShortToast(getString(R.string.apply_success_text));
+                    VideoWallPaperDao.setVideoWallPaper(context, curVideoInfo);
+                    ((AppApplication)getApplication()).getAppManager().killAll();
+                } else {
+                    curVideoInfo.isSelection = true;
+                    VideoWallPaperDao.setVideoWallPaper(context, curVideoInfo);
+                    VideoLiveWallPaperService.startVideoWallpaperPreView(VideoWallPaperDetailActivity.this);
+                }
             }
         });
+
+        if (curVideoInfo.isSelection) {
+            setBtn.setText(getString(R.string.apply_text));
+        } else {
+            setBtn.setText(getString(R.string.set_video_wallpaper));
+        }
 
         TextView titleTV = (TextView)findViewById(R.id.title);
         titleTV.setText(curVideoInfo.name);
@@ -178,12 +187,15 @@ public class VideoWallPaperDetailActivity extends Activity implements MediaPlaye
                 if (!isFromUser) {
                     curVolume = min;
                     curVideoInfo.volume = (int)curVolume;
-                    mediaPlayer.setVolume(curVideoInfo.volume * 1.f / 100f, curVideoInfo.volume * 1.f / 100f);
+                    if (mediaPlayer != null) {
+                        mediaPlayer.setVolume(curVideoInfo.volume * 1.f / 100f, curVideoInfo.volume * 1.f / 100f);
+                    }
                 }
                 volumeTV.setText(String.format(getString(R.string.volume_text),
                         String.valueOf(curVideoInfo.volume)));
             }
         });
+        volumeSeekbar.setValue(curVideoInfo.volume);
     }
 
     private TextView starTimeTV;
@@ -197,7 +209,7 @@ public class VideoWallPaperDetailActivity extends Activity implements MediaPlaye
             public void onRangeChanged(RangeSeekBar view, float min, float max, boolean isFromUser) {
                 LogUtils.v("onRangeChanged", " min " + min + " max "
                         + max + " isFromUser " + isFromUser + " curMax " + curMax);
-                if (max == 1.0){
+                if (max <= 1.0){
                     return;
                 }
 
@@ -249,9 +261,15 @@ public class VideoWallPaperDetailActivity extends Activity implements MediaPlaye
                 }
             }).start();
 
-            VideoLiveWallPaperService.setVideoWallpaper(context, curVideoInfo);
+            VideoLiveWallPaperService.updateVideoWallpaper(context, curVideoInfo);
             ((AppApplication)getApplication()).getAppManager().killAll();
+
+            if (AppApplication.isShowRatingDialog()) {
+                AppApplication.setShowRatingDialog();
+                RatingActivity.launch(context);
+            }
         } else {
+            curVideoInfo.isSelection = false;
             new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -287,7 +305,8 @@ public class VideoWallPaperDetailActivity extends Activity implements MediaPlaye
 
     private void startUpdateProgress() {
         int duration = (int)curMax - videoView.getCurrentPosition();
-        LogUtils.v(" startUpdateProgress duration " + duration);
+        LogUtils.v(" startUpdateProgress duration " + duration
+                + " getCurrentPosition : " + videoView.getCurrentPosition() + " curMax " + curMax);
         currentPosition = videoView.getCurrentPosition();
         if (duration >= 0) {
             rangeSeekBar.setValue2(currentPosition);
@@ -297,7 +316,7 @@ public class VideoWallPaperDetailActivity extends Activity implements MediaPlaye
             }
         }
 
-        runTimeTV.setText(TimeUtils.stringForTime(videoView.getCurrentPosition()));
+        runTimeTV.setText(TimeUtils.stringForTime(videoView.getCurrentPosition() - (int)curMin));
 
         UIThreadHelper.getInstance().getHandler().removeCallbacks(this);
         if (videoView.isPlaying() && !isSeeking) {
@@ -320,22 +339,27 @@ public class VideoWallPaperDetailActivity extends Activity implements MediaPlaye
 
     @Override
     public void onPrepared(MediaPlayer mp) {
-        LogUtils.v("onPrepared", " getDuration ::" + mp.getDuration());
+        LogUtils.v("onPrepared", " getDuration ::" + mp.getDuration()
+                + " curMin " + curMin + " curMax " + curMax);
         mediaPlayer = mp;
-        curMax = mp.getDuration();
+        if (curMax == 0) {
+            curMax = mp.getDuration();
+        }
         totalDuration = mp.getDuration();
 
-        rangeSeekBar.setRules(curMin, curMax, 1f, 1);
+        rangeSeekBar.setRules(0, mp.getDuration(), 1f, 1);
         rangeSeekBar.setValue(curMin, curMax);
 
         mediaPlayer.setVolume(curVolume, curVolume);
+
+        currentPosition = (int)curMin;
 
         videoStart();
 
         startUpdateProgress();
 
-        starTimeTV.setText(TimeUtils.stringForTime((int)curMin));
-        endTimeTV.setText(TimeUtils.stringForTime((int)curMax));
+        starTimeTV.setText(TimeUtils.stringForTime(0));
+        endTimeTV.setText(TimeUtils.stringForTime(totalDuration));
     }
 
     public static void launch(Context context, VideoInfoBean videoInfoBean) {

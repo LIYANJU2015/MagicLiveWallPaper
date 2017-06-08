@@ -13,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -22,6 +23,8 @@ import com.magiclive.R;
 import com.magiclive.bean.VideoInfoBean;
 import com.magiclive.db.MagicLiveContract;
 import com.magiclive.ui.base.BaseFragment;
+import com.magiclive.util.FileUtils;
+import com.magiclive.util.TimeUtils;
 
 
 /**
@@ -38,6 +41,14 @@ public class WallpaperHistoryFragment extends BaseFragment implements LoaderMana
         mHistoryListView = (ListView)rootView.findViewById(R.id.history_listview);
         mAdapter = new WallPaperHistoryAdapter(mContext);
         mHistoryListView.setAdapter(mAdapter);
+        mHistoryListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                VideoInfoBean videoInfoBean = new VideoInfoBean();
+                videoInfoBean.cursorToVideoInfoBean((Cursor) mAdapter.getItem(position));
+                VideoWallPaperDetailActivity.launch(mContext, videoInfoBean);
+            }
+        });
 
         getLoaderManager().initLoader(0, null, this);
     }
@@ -71,6 +82,9 @@ public class WallpaperHistoryFragment extends BaseFragment implements LoaderMana
             public TextView titleTV;
             public ImageView thumbnailIV;
             public ImageView playIconIV;
+            public TextView descriptionTV;
+            public TextView sizeTV;
+            public TextView timeTV;
         }
 
         public WallPaperHistoryAdapter(Context context) {
@@ -80,10 +94,13 @@ public class WallpaperHistoryFragment extends BaseFragment implements LoaderMana
         @Override
         public View newView(Context context, Cursor cursor, ViewGroup parent) {
             ViewHolder viewHolder = new ViewHolder();
-            View view  = LayoutInflater.from(mContext).inflate(R.layout.main_live_wallpaper_item, null);
+            View view  = LayoutInflater.from(mContext).inflate(R.layout.main_live_wallpaper_history_item, null);
             viewHolder.thumbnailIV = (ImageView) view.findViewById(R.id.thumbnail);
             viewHolder.titleTV = (TextView)view.findViewById(R.id.title);
             viewHolder.playIconIV = (ImageView)view.findViewById(R.id.play_icon_iv);
+            viewHolder.descriptionTV = (TextView) view.findViewById(R.id.description);
+            viewHolder.sizeTV = (TextView)view.findViewById(R.id.size);
+            viewHolder.timeTV = (TextView) view.findViewById(R.id.time);
             view.setTag(viewHolder);
             return view;
         }
@@ -98,6 +115,12 @@ public class WallpaperHistoryFragment extends BaseFragment implements LoaderMana
             } else {
                 viewHolder.playIconIV.setVisibility(View.GONE);
             }
+
+            viewHolder.timeTV.setText(TimeUtils.stringForTime((int)VideoInfoBean.getDuration(cursor)));
+            viewHolder.timeTV.setVisibility(View.VISIBLE);
+
+            viewHolder.descriptionTV.setText(VideoInfoBean.getPath(cursor));
+            viewHolder.sizeTV.setText(FileUtils.byte2FitMemorySize(VideoInfoBean.getSize(cursor)));
 
             Glide.with(mActivity).load(VideoInfoBean.getPath(cursor))
                     .placeholder(R.drawable.video_thumbnail_default)

@@ -8,11 +8,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.magiclive.R;
 import com.magiclive.bean.VideoInfoBean;
 import com.magiclive.ui.VideoWallPaperDetailActivity;
+import com.magiclive.util.TimeUtils;
 import com.magiclive.widget.RecyclerViewCursorAdapter;
 import com.zhy.adapter.recyclerview.base.ViewHolder;
 
@@ -38,6 +40,10 @@ public class LocalVideoListAdapter extends RecyclerViewCursorAdapter<ViewHolder>
     public void onBindViewHolder(ViewHolder holder, Cursor cursor) {
         final VideoInfoBean videoInfoBean = VideoInfoBean.mediaInfoToVideoInfo(cursor);
         holder.setText(R.id.title, videoInfoBean.name);
+
+        ((TextView)holder.getView(R.id.time))
+                .setText(TimeUtils.stringForTime((int)videoInfoBean.duration));
+        holder.getView(R.id.time).setVisibility(View.VISIBLE);
 
         ImageView thumbnailIV = holder.getView(R.id.thumbnail);
         Glide.with(mActivity).load(videoInfoBean.path)

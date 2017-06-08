@@ -28,25 +28,25 @@ import com.magiclive.R;
  * Extension of FrameLayout that assumes a measured (non-zero) width and sets the
  * height according to the provided aspect ratio.
  */
-public class AspectRatioView extends FrameLayout {
+public class AspectRatioFrameLayout extends FrameLayout {
     private float mAspectRatio = 0f;
 
-    public AspectRatioView(Context context) {
+    public AspectRatioFrameLayout(Context context) {
         this(context, null, 0);
     }
 
-    public AspectRatioView(Context context, AttributeSet attrs) {
+    public AspectRatioFrameLayout(Context context, AttributeSet attrs) {
 
         this(context, attrs, 0);
     }
 
-    public AspectRatioView(Context context, AttributeSet attrs, int defStyle) {
+    public AspectRatioFrameLayout(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
 
         final TypedArray a = context.obtainStyledAttributes(attrs,
-                R.styleable.AspectRatioView, defStyle, 0);
+                R.styleable.AspectRatioFrameLayout, defStyle, 0);
 
-        mAspectRatio = a.getFloat(R.styleable.AspectRatioView_aspectRatio, 0);
+        mAspectRatio = a.getFloat(R.styleable.AspectRatioFrameLayout_aspectRatio, 0);
 
         if (mAspectRatio == 0f) {
             throw new IllegalArgumentException("You must specify an aspect ratio when using the " +

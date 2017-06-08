@@ -4,30 +4,28 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:descendantFocusability="blocksDescendants"
     android:orientation="vertical">
 
     <android.support.v7.widget.CardView
-        android:clickable="true"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/padding_normal"
         app:cardBackgroundColor="@color/card"
+        android:layout_marginTop="@dimen/padding_normal"
         app:cardCornerRadius="0dp"
         app:cardElevation="2dp">
 
         <com.magiclive.widget.ForegroundLinearLayout
             android:id="@+id/item_card_view"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:clickable="true"
-            android:focusable="true"
+            android:layout_height="wrap_content"
             android:foreground="?android:selectableItemBackground"
-            android:orientation="vertical">
+            android:orientation="horizontal">
 
-            <com.magiclive.widget.AspectRatioView
-                android:layout_width="match_parent"
+            <com.magiclive.widget.AspectRatioFrameLayout
+                android:layout_width="@dimen/explore_io_theme_cards_session_image_width"
                 android:layout_height="0dp"
-                app:aspectRatio="@dimen/aspect_16_9">
+                app:aspectRatio="@dimen/aspect_4_3">
 
                 <ImageView
                     android:id="@+id/thumbnail"
@@ -37,41 +35,56 @@
                     android:src="@drawable/video_thumbnail_default" />
 
                 <ImageView
-                    android:visibility="gone"
                     android:id="@+id/play_icon_iv"
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
                     android:layout_gravity="center"
                     android:src="@drawable/ic_play"
-                    android:layout_width="60dp"
-                    android:layout_height="60dp" />
+                    android:visibility="gone" />
 
-            </com.magiclive.widget.AspectRatioView>
+            </com.magiclive.widget.AspectRatioFrameLayout>
 
-            <TextView
-                android:id="@+id/title"
+            <LinearLayout
+                android:layout_gravity="center"
+                android:layout_marginTop="5dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                android:layout_marginEnd="16dp"
-                android:layout_marginLeft="16dp"
-                android:layout_marginRight="16dp"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="16dp"
-                android:maxLines="2"
-                android:textColor="@color/body_text_1"
-                android:textSize="@dimen/text_size_xlarge"
-                tools:text="title" />
+                android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/description"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="16dp"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
-                android:layout_marginRight="16dp"
-                android:layout_marginBottom="16dp"
-                android:textAppearance="@style/TextAppearance.SessionTitle"
-                 />
+                <TextView
+                    android:id="@+id/title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginRight="16dp"
+                    android:maxLines="1"
+                    android:ellipsize="middle"
+                    android:textColor="@color/body_text_1"
+                    android:textSize="@dimen/text_size_large"
+                    tools:text="title" />
+
+                <TextView
+                    android:id="@+id/description"
+                    android:maxLines="1"
+                    android:ellipsize="middle"
+                    android:textSize="@dimen/text_size_medium"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="5dp"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginRight="16dp"
+                    android:textAppearance="@style/TextAppearance.SessionTitle" />
+
+                <TextView
+                    android:id="@+id/size"
+                    android:textSize="@dimen/text_size_medium"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginRight="16dp"
+                    android:textAppearance="@style/TextAppearance.SessionTitle" />
+            </LinearLayout>
 
         </com.magiclive.widget.ForegroundLinearLayout>
 

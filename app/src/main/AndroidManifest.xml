@@ -71,6 +71,13 @@
             android:theme="@style/AppTheme.NoActionBar"
             />
 
+        <activity android:name=".ui.RatingActivity"
+            android:excludeFromRecents="true"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait"
+            android:theme="@style/DialogStyle"
+            />
+
         <service android:label="@string/app_name"
             android:name=".service.VideoLiveWallPaperService"
             android:permission="android.permission.BIND_WALLPAPER"

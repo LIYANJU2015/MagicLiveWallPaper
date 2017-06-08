@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.MediaPlayer;
-import android.os.AsyncTask;
 import android.service.wallpaper.WallpaperService;
 import android.text.TextUtils;
 import android.view.SurfaceHolder;
@@ -54,6 +53,7 @@ public class VideoLiveWallPaperService extends WallpaperService {
         private int start;
         private int end;
         private int volume;
+        private int scalingMode;
         private VideoInfoBean curVideoInfoBean;
 
         private BroadcastReceiver mVideoParamsControlReceiver;
@@ -72,6 +72,8 @@ public class VideoLiveWallPaperService extends WallpaperService {
             start = (int)videoInfoBean.startTime;
             end = (int)videoInfoBean.endTime;
             volume = videoInfoBean.volume;
+            scalingMode = videoInfoBean.scalingMode;
+
             curVideoInfoBean = videoInfoBean;
         }
 
@@ -107,7 +109,7 @@ public class VideoLiveWallPaperService extends WallpaperService {
                     }
                     LogUtils.v("registerReceiver", "onReceive");
                     if (VIDEO_VOLUME_ACTION.equals(intent.getAction())) {
-                        setPlayerVolume();
+                        setPlayerConfig();
                     } else if (VIDEO_SET_ACTION.equals(intent.getAction())) {
                         curVideoInfoBean = intent.getParcelableExtra("VideoInfo");
                         LogUtils.v("registerReceiver", "onReceive newPath " + curVideoInfoBean.path
@@ -119,17 +121,22 @@ public class VideoLiveWallPaperService extends WallpaperService {
                             if (!isVisible()) {
                                 mediaPlayer.pause();
                             }
+                        } else {
+                            initVideoWallPaperParam(curVideoInfoBean);
+                            setPlayerConfig();
                         }
                     }
                 }
             }, intentFilter);
         }
 
-        private void setPlayerVolume() {
+        private void setPlayerConfig() {
             if (mediaPlayer != null) {
                 float newVolume = volume * 1.f / 100f;
                 LogUtils.v("setVolume", " volume " + volume + " videoVolume " + newVolume);
                 mediaPlayer.setVolume(newVolume, newVolume);
+                mediaPlayer.setVideoScalingMode(scalingMode);
+                mediaPlayer.seekTo(start);
             }
         }
 
@@ -182,9 +189,8 @@ public class VideoLiveWallPaperService extends WallpaperService {
                 mediaPlayer.setDataSource(path);
                 mediaPlayer.setOnCompletionListener(this);
                 mediaPlayer.setVideoScalingMode(MediaPlayer.VIDEO_SCALING_MODE_SCALE_TO_FIT);
-                setPlayerVolume();
                 mediaPlayer.prepare();
-                mediaPlayer.seekTo(start);
+                setPlayerConfig();
                 mediaPlayer.start();
                 startUpdateProgress();
             } catch (Exception e) {
@@ -242,7 +248,7 @@ public class VideoLiveWallPaperService extends WallpaperService {
         context.sendBroadcast(intent);
     }
 
-    public static void setVideoWallpaper(Context context, VideoInfoBean videoInfoBean) {
+    public static void updateVideoWallpaper(Context context, VideoInfoBean videoInfoBean) {
         Intent intent = new Intent(VIDEO_SET_ACTION);
         intent.putExtra("VideoInfo", videoInfoBean);
         context.sendBroadcast(intent);

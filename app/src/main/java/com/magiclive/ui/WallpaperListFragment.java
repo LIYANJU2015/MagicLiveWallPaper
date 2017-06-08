@@ -79,7 +79,9 @@ public class WallpaperListFragment extends BaseFragment {
                         holder.getView(R.id.description).setVisibility(View.VISIBLE);
                         ((TextView)holder.getView(R.id.description)).setText(bean.videoInfoBean.path);
                     }
+                    ((TextView)holder.getView(R.id.title)).setMaxLines(1);
                 } else {
+                    ((TextView)holder.getView(R.id.title)).setMaxLines(2);
                     holder.getView(R.id.description).setVisibility(View.GONE);
                 }
 

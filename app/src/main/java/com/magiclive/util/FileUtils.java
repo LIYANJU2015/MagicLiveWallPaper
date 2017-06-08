@@ -1370,7 +1370,7 @@ public final class FileUtils {
      * @return 合适内存大小
      */
     @SuppressLint("DefaultLocale")
-    private static String byte2FitMemorySize(long byteNum) {
+    public static String byte2FitMemorySize(long byteNum) {
         if (byteNum < 0) {
             return "shouldn't be less than zero!";
         } else if (byteNum < MemoryConstants.KB) {

@@ -14,7 +14,7 @@
     android:baselineAligned="false"
     android:orientation="horizontal">
 
-    <com.magiclive.widget.AspectRatioView
+    <com.magiclive.widget.AspectRatioFrameLayout
         android:layout_width="@dimen/explore_io_theme_cards_session_image_width"
         android:layout_height="0dp"
         android:layout_marginEnd="@dimen/padding_normal"
@@ -28,7 +28,18 @@
             android:scaleType="centerCrop"
             android:src="@drawable/video_thumbnail_default" />
 
-    </com.magiclive.widget.AspectRatioView>
+        <TextView
+            android:id="@+id/time"
+            style="@style/list_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|right"
+            android:layout_margin="1dp"
+            android:background="@color/material_black"
+            android:textColor="@color/material_white"
+            android:visibility="gone" />
+
+    </com.magiclive.widget.AspectRatioFrameLayout>
 
     <LinearLayout
         android:layout_width="0dp"
