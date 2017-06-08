@@ -5,6 +5,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -12,15 +13,18 @@ import com.bumptech.glide.Glide;
 import com.magiclive.R;
 import com.magiclive.WallPaperUtils;
 import com.magiclive.bean.LiveWallPaperBean;
+import com.magiclive.bean.VideoInfoBean;
 import com.magiclive.service.MirrorLiveWallPaperService;
 import com.magiclive.service.TransparentLiveWallPaperService;
 import com.magiclive.ui.base.BaseFragment;
+import com.magiclive.util.SizeUtils;
 import com.zhy.adapter.recyclerview.CommonAdapter;
 import com.zhy.adapter.recyclerview.base.ViewHolder;
 
 import java.util.ArrayList;
 
 import static android.R.attr.path;
+import static com.magiclive.bean.LiveWallPaperBean.MIRROR_LIVE_WALLPAPER;
 import static com.magiclive.bean.LiveWallPaperBean.VIDEO_LIVE_WALLPAPER;
 
 /**
@@ -70,8 +74,8 @@ public class WallpaperListFragment extends BaseFragment {
                     if (bean.videoInfoBean == null) {
                         bean.setLastSDCardVideoInfo(mContext);
                     }
+                    ImageView thumbnailIV = holder.getView(R.id.thumbnail);
                     if (bean.videoInfoBean != null && !TextUtils.isEmpty(bean.videoInfoBean.path)) {
-                        ImageView thumbnailIV = holder.getView(R.id.thumbnail);
                         Glide.with(mActivity).load(bean.videoInfoBean.path)
                                 .placeholder(R.drawable.video_thumbnail_default)
                                 .error(R.drawable.video_thumbnail_default).crossFade()
@@ -80,7 +84,18 @@ public class WallpaperListFragment extends BaseFragment {
                         ((TextView)holder.getView(R.id.description)).setText(bean.videoInfoBean.path);
                     }
                     ((TextView)holder.getView(R.id.title)).setMaxLines(1);
+
+                    holder.getView(R.id.thumbnail_frame).setBackgroundResource(R.drawable.video_icon_bg);
+                    thumbnailIV.setPadding(0, 0, SizeUtils.dp2px(8), SizeUtils.dp2px(8));
                 } else {
+                    if (bean.type == MIRROR_LIVE_WALLPAPER) {
+                        Glide.with(mActivity).load(R.drawable.mirror_icon)
+                                .into((ImageView) holder.getView(R.id.thumbnail));
+                    } else {
+                        Glide.with(mActivity).load(R.drawable.transparency_icon)
+                                .into((ImageView) holder.getView(R.id.thumbnail));
+                    }
+
                     ((TextView)holder.getView(R.id.title)).setMaxLines(2);
                     holder.getView(R.id.description).setVisibility(View.GONE);
                 }

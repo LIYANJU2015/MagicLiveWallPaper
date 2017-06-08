@@ -15,6 +15,7 @@
     android:orientation="horizontal">
 
     <com.magiclive.widget.AspectRatioFrameLayout
+        android:layout_gravity="center"
         android:layout_width="@dimen/explore_io_theme_cards_session_image_width"
         android:layout_height="0dp"
         android:layout_marginEnd="@dimen/padding_normal"

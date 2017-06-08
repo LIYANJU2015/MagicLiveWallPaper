@@ -13,9 +13,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.VideoView;
 
-
 import com.magiclive.AppApplication;
-import com.magiclive.AppManager;
 import com.magiclive.R;
 import com.magiclive.bean.VideoInfoBean;
 import com.magiclive.db.VideoWallPaperDao;
@@ -28,8 +26,6 @@ import com.magiclive.util.ToastUtils;
 import com.magiclive.util.UIThreadHelper;
 import com.magiclive.widget.ENPlayView;
 import com.magiclive.widget.RangeSeekBar;
-
-import static android.icu.lang.UCharacter.GraphemeClusterBreak.T;
 
 
 /**
@@ -173,7 +169,9 @@ public class VideoWallPaperDetailActivity extends Activity implements MediaPlaye
         videoView.setVisibility(View.VISIBLE);
         videoView.setOnPreparedListener(this);
         videoView.setOnCompletionListener(this);
+
         videoView.setVideoPath(curVideoInfo.path);
+
         videoView.setMediaController(null);
         videoView.requestFocus();
     }
