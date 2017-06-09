@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Rect;
 import android.media.MediaPlayer;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.View;
@@ -18,6 +19,7 @@ import com.magiclive.R;
 import com.magiclive.bean.VideoInfoBean;
 import com.magiclive.db.VideoWallPaperDao;
 import com.magiclive.service.VideoLiveWallPaperService;
+import com.magiclive.util.DeviceUtils;
 import com.magiclive.util.LogUtils;
 import com.magiclive.util.SizeUtils;
 import com.magiclive.util.StatusBarColorCompat;
@@ -60,6 +62,17 @@ public class VideoWallPaperDetailActivity extends Activity implements MediaPlaye
     private LinearLayout bottomLinear;
 
     private void loadVideoInfo(VideoInfoBean videoInfoBean) {
+        if (!AppApplication.getSPUtils().getBoolean("audio", true)) {
+            videoInfoBean.volume = 0;
+        }
+
+        if (AppApplication.getSPUtils().getBoolean("scale", true)) {
+            videoInfoBean.scalingMode = MediaPlayer.VIDEO_SCALING_MODE_SCALE_TO_FIT;
+        } else {
+            videoInfoBean.scalingMode = MediaPlayer.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING;
+        }
+
+
         curVolume = videoInfoBean.volume * 1.f / 100f;
         curMin = videoInfoBean.startTime;
         curMax = videoInfoBean.endTime;
@@ -110,6 +123,8 @@ public class VideoWallPaperDetailActivity extends Activity implements MediaPlaye
                     curVideoInfo.isSelection = true;
                     VideoWallPaperDao.setVideoWallPaper(context, curVideoInfo);
                     VideoLiveWallPaperService.startVideoWallpaperPreView(VideoWallPaperDetailActivity.this);
+                    // 同时只能有一个播放器存在，看以后换播放器能否解决
+                    videoView.stopPlayback();
                 }
             }
         });
@@ -169,9 +184,7 @@ public class VideoWallPaperDetailActivity extends Activity implements MediaPlaye
         videoView.setVisibility(View.VISIBLE);
         videoView.setOnPreparedListener(this);
         videoView.setOnCompletionListener(this);
-
         videoView.setVideoPath(curVideoInfo.path);
-
         videoView.setMediaController(null);
         videoView.requestFocus();
     }
@@ -246,34 +259,48 @@ public class VideoWallPaperDetailActivity extends Activity implements MediaPlaye
         runTimeTV.setText(TimeUtils.stringForTime(0));
     }
 
+    private void setLiveWallPaperSuccess() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                VideoWallPaperDao.setOtherVideoNoSelect(context, curVideoInfo);
+                VideoWallPaperDao.setVideoWallPaper(context, curVideoInfo);
+            }
+        }).start();
+
+        VideoLiveWallPaperService.updateVideoWallpaper(context, curVideoInfo);
+        ((AppApplication)getApplication()).getAppManager().killAll();
+
+        if (AppApplication.isShowRatingDialog()) {
+            AppApplication.setShowRatingDialog();
+            RatingActivity.launch(context);
+        }
+    }
+
+    private void cancelSetLiveWallPaper() {
+        curVideoInfo.isSelection = false;
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                VideoWallPaperDao.removeVideoWallPager(context, curVideoInfo);
+            }
+        }).start();
+        // 同时只能有一个播放器存在，看以后换播放器能否解决
+        finish();
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         LogUtils.v("onActivityResult", " requestCode " + requestCode + " resultCode " + resultCode);
-        if (resultCode == Activity.RESULT_OK) {
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    VideoWallPaperDao.setOtherVideoNoSelect(context, curVideoInfo);
-                    VideoWallPaperDao.setVideoWallPaper(context, curVideoInfo);
-                }
-            }).start();
-
-            VideoLiveWallPaperService.updateVideoWallpaper(context, curVideoInfo);
-            ((AppApplication)getApplication()).getAppManager().killAll();
-
-            if (AppApplication.isShowRatingDialog()) {
-                AppApplication.setShowRatingDialog();
-                RatingActivity.launch(context);
+        if (DeviceUtils.getSDKVersion() >= Build.VERSION_CODES.LOLLIPOP) {
+            if (resultCode == Activity.RESULT_OK) {
+                setLiveWallPaperSuccess();
+            } else {
+                cancelSetLiveWallPaper();
             }
         } else {
-            curVideoInfo.isSelection = false;
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    VideoWallPaperDao.removeVideoWallPager(context, curVideoInfo);
-                }
-            }).start();
+            setLiveWallPaperSuccess();
         }
     }
 
@@ -314,7 +341,7 @@ public class VideoWallPaperDetailActivity extends Activity implements MediaPlaye
             }
         }
 
-        runTimeTV.setText(TimeUtils.stringForTime(videoView.getCurrentPosition() - (int)curMin));
+        runTimeTV.setText(TimeUtils.stringForTime(Math.abs(videoView.getCurrentPosition() - (int)curMin)));
 
         UIThreadHelper.getInstance().getHandler().removeCallbacks(this);
         if (videoView.isPlaying() && !isSeeking) {
@@ -349,6 +376,7 @@ public class VideoWallPaperDetailActivity extends Activity implements MediaPlaye
         rangeSeekBar.setValue(curMin, curMax);
 
         mediaPlayer.setVolume(curVolume, curVolume);
+        mediaPlayer.setVideoScalingMode(curVideoInfo.scalingMode);
 
         currentPosition = (int)curMin;
 
@@ -361,6 +389,7 @@ public class VideoWallPaperDetailActivity extends Activity implements MediaPlaye
     }
 
     public static void launch(Context context, VideoInfoBean videoInfoBean) {
+        VideoLiveWallPaperService.releaseWallpaperPlayer(context);
         Intent intent = new Intent(context, VideoWallPaperDetailActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.putExtra("videoinfo", videoInfoBean);

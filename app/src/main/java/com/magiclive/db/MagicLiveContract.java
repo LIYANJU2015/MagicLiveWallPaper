@@ -26,6 +26,7 @@ public class MagicLiveContract {
         public static final String VIDEO_SELECT = "video_select";
         public static final String VIDEO_VOLUME = "video_volume";
         public static final String VIDEO_TIME = "video_time";
+        public static final String VIDEO_SCALINGMODE = "video_scalingMode";
 
         public static final String TABLE_NAME = "VideoContract";
 
@@ -52,6 +53,7 @@ public class MagicLiveContract {
             columnsMap.put(VIDEO_SELECT, "int");
             columnsMap.put(VIDEO_VOLUME, "int");
             columnsMap.put(VIDEO_TIME, "int");
+            columnsMap.put(VIDEO_SCALINGMODE, "int");
         }
     }
 }

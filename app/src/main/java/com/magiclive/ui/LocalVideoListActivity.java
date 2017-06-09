@@ -3,6 +3,7 @@ package com.magiclive.ui;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Paint;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -13,7 +14,9 @@ import android.support.v4.content.Loader;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.text.Html;
 import android.text.TextUtils;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -27,6 +30,8 @@ import com.magiclive.R;
 import com.magiclive.WallPaperUtils;
 import com.magiclive.adapter.LocalVideoListAdapter;
 import com.magiclive.ui.base.BaseActivity;
+import com.magiclive.util.SizeUtils;
+import com.zhy.adapter.recyclerview.wrapper.EmptyWrapper;
 import com.zhy.adapter.recyclerview.wrapper.HeaderAndFooterWrapper;
 
 /**
@@ -58,7 +63,7 @@ public class LocalVideoListActivity extends BaseActivity implements LoaderManage
         setToolbarElevation(getResources().getDimension(R.dimen.headerbar_elevation));
 
         setSupportActionBar(mToolbar);
-        setCurToolbar(findViewById(R.id.headerbar));
+        setCurToolbar(mToolbar);
 
         mVideoListRecyclerView = (RecyclerView)findViewById(R.id.video_list_recyclerview);
         mVideoListRecyclerView.setHasFixedSize(true);
@@ -67,7 +72,11 @@ public class LocalVideoListActivity extends BaseActivity implements LoaderManage
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
-                onBaseScrolled(recyclerView, dx, dy);
+                try {
+                    onBaseScrolled(recyclerView, dx, dy);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         });
 
@@ -75,6 +84,17 @@ public class LocalVideoListActivity extends BaseActivity implements LoaderManage
         headerAdapter = new HeaderAndFooterWrapper(mAdapter);
         headerAdapter.addHeaderView(createHeaderView());
         mVideoListRecyclerView.setAdapter(headerAdapter);
+
+        findViewById(R.id.subtitle).setVisibility(View.VISIBLE);
+        ((TextView)findViewById(R.id.subtitle)).setText(getString(R.string.empty_tips));
+        ((TextView)findViewById(R.id.subtitle)).getPaint().setFlags(Paint.UNDERLINE_TEXT_FLAG);
+        findViewById(R.id.subtitle).setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                shootVideo();
+            }
+        });
+       findViewById(R.id.empty_frame).setVisibility(View.GONE);
 
         mSearchView = (SearchView)findViewById(R.id.searchView);
         mSearchView.setArrowOnly(false);
@@ -159,22 +179,31 @@ public class LocalVideoListActivity extends BaseActivity implements LoaderManage
                 selectionChangeRestartLoader(null, "artist ASC");
                 return true;
             case R.id.menu_record_video:
-                Intent intent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
-                intent.putExtra(android.provider.MediaStore.EXTRA_SIZE_LIMIT,
-                        768000);
-                intent.putExtra(
-                        android.provider.MediaStore.EXTRA_DURATION_LIMIT, 45000);
-                startActivityForResult(intent, 1);
+                shootVideo();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
+    public void shootVideo() {
+        Intent intent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
+        intent.putExtra(android.provider.MediaStore.EXTRA_SIZE_LIMIT,
+                768000);
+        intent.putExtra(
+                android.provider.MediaStore.EXTRA_DURATION_LIMIT, 45000);
+        startActivityForResult(intent, 1);
+    }
+
     private View createHeaderView() {
         View view = new View(this);
+        int headerHeight = WallPaperUtils.getActionBarHeight(this);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            headerHeight = headerHeight + SizeUtils.dp2px(8);
+        }
         RecyclerView.LayoutParams layoutParams =
-                new RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, WallPaperUtils.getActionBarHeight(this));
+                new RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                        headerHeight);
         view.setLayoutParams(layoutParams);
         return view;
     }
@@ -205,6 +234,12 @@ public class LocalVideoListActivity extends BaseActivity implements LoaderManage
         if (mAdapter != null && headerAdapter != null) {
             mAdapter.changeCursor(data);
             headerAdapter.notifyDataSetChanged();
+
+            if (data.getCount() > 0) {
+                findViewById(R.id.empty_frame).setVisibility(View.GONE);
+            } else {
+                findViewById(R.id.empty_frame).setVisibility(View.VISIBLE);
+            }
         }
     }
 

@@ -1,11 +1,9 @@
 package com.magiclive.ui;
 
-import android.provider.MediaStore;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.View;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -13,7 +11,6 @@ import com.bumptech.glide.Glide;
 import com.magiclive.R;
 import com.magiclive.WallPaperUtils;
 import com.magiclive.bean.LiveWallPaperBean;
-import com.magiclive.bean.VideoInfoBean;
 import com.magiclive.service.MirrorLiveWallPaperService;
 import com.magiclive.service.TransparentLiveWallPaperService;
 import com.magiclive.ui.base.BaseFragment;
@@ -23,7 +20,6 @@ import com.zhy.adapter.recyclerview.base.ViewHolder;
 
 import java.util.ArrayList;
 
-import static android.R.attr.path;
 import static com.magiclive.bean.LiveWallPaperBean.MIRROR_LIVE_WALLPAPER;
 import static com.magiclive.bean.LiveWallPaperBean.VIDEO_LIVE_WALLPAPER;
 
@@ -47,6 +43,12 @@ public class WallpaperListFragment extends BaseFragment {
     @Override
     public void initData() {
         LiveWallPaperBean liveWallPaperBean;
+
+        liveWallPaperBean = new LiveWallPaperBean();
+        liveWallPaperBean.title = getString(R.string.video_wallpaper);
+        liveWallPaperBean.type = VIDEO_LIVE_WALLPAPER;
+        mList.add(liveWallPaperBean);
+
         if (WallPaperUtils.isSupportFrontCamera()) {
             liveWallPaperBean = new LiveWallPaperBean();
             liveWallPaperBean.title = getString(R.string.mirror_wallpaper);
@@ -57,11 +59,6 @@ public class WallpaperListFragment extends BaseFragment {
         liveWallPaperBean = new LiveWallPaperBean();
         liveWallPaperBean.title = getString(R.string.transperent_wallpaper);
         liveWallPaperBean.type = LiveWallPaperBean.TRANSPARENT_LIVE_WALLPAPER;
-        mList.add(liveWallPaperBean);
-
-        liveWallPaperBean = new LiveWallPaperBean();
-        liveWallPaperBean.title = getString(R.string.video_wallpaper);
-        liveWallPaperBean.type = VIDEO_LIVE_WALLPAPER;
         mList.add(liveWallPaperBean);
 
         listRecyclerView.setAdapter(new CommonAdapter<LiveWallPaperBean>(mContext,
@@ -80,13 +77,21 @@ public class WallpaperListFragment extends BaseFragment {
                                 .placeholder(R.drawable.video_thumbnail_default)
                                 .error(R.drawable.video_thumbnail_default).crossFade()
                                 .into(thumbnailIV);
+
                         holder.getView(R.id.description).setVisibility(View.VISIBLE);
-                        ((TextView)holder.getView(R.id.description)).setText(bean.videoInfoBean.path);
+                        ((TextView)holder.getView(R.id.description))
+                                .setText(String.format(getString(R.string.video_count_text),
+                                        String.valueOf(bean.videoCount)));
+
+                        holder.getView(R.id.thumbnail_frame).setBackgroundResource(R.drawable.video_icon_bg);
+                        thumbnailIV.setPadding(0, 0, SizeUtils.dp2px(8), SizeUtils.dp2px(8));
+                    } else {
+                        holder.getView(R.id.thumbnail_frame).setBackground(null);
+                        thumbnailIV.setPadding(0, 0, SizeUtils.dp2px(0), SizeUtils.dp2px(0));
                     }
+
                     ((TextView)holder.getView(R.id.title)).setMaxLines(1);
 
-                    holder.getView(R.id.thumbnail_frame).setBackgroundResource(R.drawable.video_icon_bg);
-                    thumbnailIV.setPadding(0, 0, SizeUtils.dp2px(8), SizeUtils.dp2px(8));
                 } else {
                     if (bean.type == MIRROR_LIVE_WALLPAPER) {
                         Glide.with(mActivity).load(R.drawable.mirror_icon)
@@ -105,10 +110,10 @@ public class WallpaperListFragment extends BaseFragment {
                     public void onClick(View v) {
                         switch (bean.type) {
                             case LiveWallPaperBean.MIRROR_LIVE_WALLPAPER:
-                                MirrorLiveWallPaperService.startTransparentWallpaperPreView(mContext);
+                                MirrorLiveWallPaperService.startMirrorWallpaperPreView(mActivity);
                                 break;
                             case LiveWallPaperBean.TRANSPARENT_LIVE_WALLPAPER:
-                                TransparentLiveWallPaperService.startTransparentWallpaperPreView(mContext);
+                                TransparentLiveWallPaperService.startTransparentWallpaperPreView(mActivity);
                                 break;
                             case VIDEO_LIVE_WALLPAPER:
                                 LocalVideoListActivity.launch(mContext);

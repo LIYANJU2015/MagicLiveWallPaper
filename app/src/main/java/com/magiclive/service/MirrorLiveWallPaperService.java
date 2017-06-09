@@ -23,6 +23,8 @@ public class MirrorLiveWallPaperService extends WallpaperService{
 
     private Context context;
 
+    public static final int REQUEST_MIRROR_CODE = 555;
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -34,11 +36,11 @@ public class MirrorLiveWallPaperService extends WallpaperService{
         return new MirrorEngine();
     }
 
-    public static void startTransparentWallpaperPreView(Context context) {
+    public static void startMirrorWallpaperPreView(Context context) {
         Intent intent = createLiveWallpaperIntent(context.getPackageName(),
                 MirrorLiveWallPaperService.class.getName());
         if (context instanceof Activity) {
-            ((Activity)context).startActivityForResult(intent, 0);
+            ((Activity)context).startActivityForResult(intent, REQUEST_MIRROR_CODE);
         } else {
             context.startActivity(intent);
         }

@@ -7,6 +7,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.provider.MediaStore;
 
+import com.magiclive.AppApplication;
 import com.magiclive.db.MagicLiveContract;
 
 /**
@@ -56,6 +57,7 @@ public class VideoInfoBean implements Parcelable{
         contentValues.put(MagicLiveContract.VideoContract.VIDEO_START_TIME, startTime);
         contentValues.put(MagicLiveContract.VideoContract.VIDEO_VOLUME, volume);
         contentValues.put(MagicLiveContract.VideoContract.VIDEO_TIME, updateTime);
+        contentValues.put(MagicLiveContract.VideoContract.VIDEO_SCALINGMODE, scalingMode);
         return contentValues;
     }
 
@@ -69,6 +71,7 @@ public class VideoInfoBean implements Parcelable{
         startTime = cursor.getLong(cursor.getColumnIndexOrThrow(MagicLiveContract.VideoContract.VIDEO_START_TIME));
         volume = cursor.getInt(cursor.getColumnIndexOrThrow(MagicLiveContract.VideoContract.VIDEO_VOLUME));
         updateTime = cursor.getInt(cursor.getColumnIndexOrThrow(MagicLiveContract.VideoContract.VIDEO_TIME));
+        scalingMode = cursor.getInt(cursor.getColumnIndexOrThrow(MagicLiveContract.VideoContract.VIDEO_SCALINGMODE));
     }
 
     public static String getName(Cursor cursor) {
@@ -100,6 +103,7 @@ public class VideoInfoBean implements Parcelable{
     }
 
     public VideoInfoBean() {
+
     }
 
     @Override

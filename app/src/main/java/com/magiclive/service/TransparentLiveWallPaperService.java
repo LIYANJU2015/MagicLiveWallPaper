@@ -19,6 +19,8 @@ import static com.magiclive.WallPaperUtils.createLiveWallpaperIntent;
 
 public class TransparentLiveWallPaperService extends WallpaperService{
 
+    public static final int REQUEST_TRANSPERENT_CODE = 222;
+
     @Override
     public Engine onCreateEngine() {
         return new TransparentEngine();
@@ -28,7 +30,7 @@ public class TransparentLiveWallPaperService extends WallpaperService{
         Intent intent = createLiveWallpaperIntent(context.getPackageName(),
                 TransparentLiveWallPaperService.class.getName());
         if (context instanceof Activity) {
-            ((Activity)context).startActivityForResult(intent, 0);
+            ((Activity)context).startActivityForResult(intent, REQUEST_TRANSPERENT_CODE);
         } else {
             context.startActivity(intent);
         }

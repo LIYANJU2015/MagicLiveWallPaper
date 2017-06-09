@@ -14,6 +14,7 @@ import com.bumptech.glide.Glide;
 import com.magiclive.R;
 import com.magiclive.bean.VideoInfoBean;
 import com.magiclive.ui.VideoWallPaperDetailActivity;
+import com.magiclive.util.FileUtils;
 import com.magiclive.util.TimeUtils;
 import com.magiclive.widget.RecyclerViewCursorAdapter;
 import com.zhy.adapter.recyclerview.base.ViewHolder;
@@ -57,6 +58,8 @@ public class LocalVideoListAdapter extends RecyclerViewCursorAdapter<ViewHolder>
                 VideoWallPaperDetailActivity.launch(mContext, videoInfoBean);
             }
         });
+
+        ((TextView)holder.getView(R.id.size_tv)).setText(FileUtils.byte2FitMemorySize(videoInfoBean.size));
     }
 
     @Override

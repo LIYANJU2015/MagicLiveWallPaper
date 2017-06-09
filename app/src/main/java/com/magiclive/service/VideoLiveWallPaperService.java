@@ -15,6 +15,10 @@ import com.magiclive.db.VideoWallPaperDao;
 import com.magiclive.util.LogUtils;
 import com.magiclive.util.UIThreadHelper;
 
+import java.io.File;
+import java.io.FileInputStream;
+
+import static android.icu.lang.UCharacter.GraphemeClusterBreak.L;
 import static com.magiclive.WallPaperUtils.createLiveWallpaperIntent;
 
 
@@ -31,6 +35,8 @@ public class VideoLiveWallPaperService extends WallpaperService {
 
     public static final String VIDEO_VOLUME_ACTION = "video_volume_action";
     public static final String VIDEO_SET_ACTION = "video_set_action";
+    public static final String VIDEO_RELEASE_ACTION = "video_release_action";
+    public static final String VIDEO_SCALE_ACTION = "video_scale_action";
 
     @Override
     public void onCreate() {
@@ -99,17 +105,28 @@ public class VideoLiveWallPaperService extends WallpaperService {
         }
 
         private void registerReceiver() {
+            LogUtils.v("registerReceiver start >>");
             IntentFilter intentFilter = new IntentFilter(VIDEO_VOLUME_ACTION);
             intentFilter.addAction(VIDEO_SET_ACTION);
+            intentFilter.addAction(VIDEO_RELEASE_ACTION);
+            intentFilter.addAction(VIDEO_SCALE_ACTION);
             context.registerReceiver(mVideoParamsControlReceiver = new BroadcastReceiver() {
                 @Override
                 public void onReceive(Context context, Intent intent) {
                     if (intent == null) {
                         return;
                     }
-                    LogUtils.v("registerReceiver", "onReceive");
+                    LogUtils.v("registerReceiver", "onReceive getAction:: " + intent.getAction());
                     if (VIDEO_VOLUME_ACTION.equals(intent.getAction())) {
-                        setPlayerConfig();
+                        boolean silence = intent.getBooleanExtra(VIDEO_VOLUME, false);
+                        if (mediaPlayer != null) {
+                            if (silence) {
+                                mediaPlayer.setVolume(0f, 0f);
+                            } else {
+                                float newVolume = volume * 1.f / 100f;
+                                mediaPlayer.setVolume(newVolume, newVolume);
+                            }
+                        }
                     } else if (VIDEO_SET_ACTION.equals(intent.getAction())) {
                         curVideoInfoBean = intent.getParcelableExtra("VideoInfo");
                         LogUtils.v("registerReceiver", "onReceive newPath " + curVideoInfoBean.path
@@ -124,6 +141,17 @@ public class VideoLiveWallPaperService extends WallpaperService {
                         } else {
                             initVideoWallPaperParam(curVideoInfoBean);
                             setPlayerConfig();
+                        }
+                    } else if (VIDEO_RELEASE_ACTION.equals(intent.getAction())) {
+                        releasePlayer();
+                    } else if (VIDEO_SCALE_ACTION.equals(intent.getAction())) {
+                        boolean fitModel = intent.getBooleanExtra("ScalingModeFit", true);
+                        if (mediaPlayer != null) {
+                            if (fitModel) {
+                                mediaPlayer.setVideoScalingMode(MediaPlayer.VIDEO_SCALING_MODE_SCALE_TO_FIT);
+                            } else {
+                                mediaPlayer.setVideoScalingMode(MediaPlayer.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING);
+                            }
                         }
                     }
                 }
@@ -156,13 +184,19 @@ public class VideoLiveWallPaperService extends WallpaperService {
         }
 
         private void onVisibilityChangedPlay() {
+            LogUtils.v("onVisibilityChangedPlay isVisible " + isVisible()
+                    + " mediaPlayer " + mediaPlayer);
             if (isVisible()) {
-                if (mediaPlayer != null) {
+
+                if (mediaPlayer == null) {
+                    initMediaPlayer();
+                    return;
+                } else {
                     mediaPlayer.start();
                 }
                 startUpdateProgress();
-            } else {
-                if (mediaPlayer != null) {
+            }  else {
+                if (mediaPlayer != null && mediaPlayer.isPlaying()) {
                     mediaPlayer.pause();
                 }
             }
@@ -171,7 +205,7 @@ public class VideoLiveWallPaperService extends WallpaperService {
         @Override
         public void onVisibilityChanged(boolean visible) {
             LogUtils.v("VideoEngine", "onVisibilityChanged visible " + visible
-                    + " hashCode " + hashCode() + " path " + path + " isPreview " + isPreview());
+                     + " path " + path + " isPreview " + isPreview());
             onVisibilityChangedPlay();
         }
 
@@ -188,7 +222,9 @@ public class VideoLiveWallPaperService extends WallpaperService {
                 mediaPlayer.reset();
                 mediaPlayer.setDataSource(path);
                 mediaPlayer.setOnCompletionListener(this);
-                mediaPlayer.setVideoScalingMode(MediaPlayer.VIDEO_SCALING_MODE_SCALE_TO_FIT);
+                if (curVideoInfoBean != null) {
+                    mediaPlayer.setVideoScalingMode(curVideoInfoBean.scalingMode);
+                }
                 mediaPlayer.prepare();
                 setPlayerConfig();
                 mediaPlayer.start();
@@ -242,10 +278,13 @@ public class VideoLiveWallPaperService extends WallpaperService {
         }
     }
 
-    public static void setVideoWallpaperVolume(Context context, int volume) {
-        Intent intent = new Intent(VIDEO_VOLUME_ACTION);
-        intent.putExtra(VIDEO_VOLUME, volume);
-        context.sendBroadcast(intent);
+    public static void releaseWallpaperPlayer(Context context) {
+        try {
+            Intent intent = new Intent(VIDEO_RELEASE_ACTION);
+            context.sendBroadcast(intent);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public static void updateVideoWallpaper(Context context, VideoInfoBean videoInfoBean) {
@@ -254,11 +293,25 @@ public class VideoLiveWallPaperService extends WallpaperService {
         context.sendBroadcast(intent);
     }
 
+    public static void setScaleVideoWallpaper(Context context, boolean isScalingFit) {
+        Intent intent = new Intent(VIDEO_SCALE_ACTION);
+        intent.putExtra("ScalingModeFit", isScalingFit);
+        context.sendBroadcast(intent);
+    }
+
+    public static void setVideoWallpaperVolume(Context context, boolean silence) {
+        Intent intent = new Intent(VIDEO_VOLUME_ACTION);
+        intent.putExtra(VIDEO_VOLUME, silence);
+        context.sendBroadcast(intent);
+    }
+
+    public static final int REQUEST_VIDEO_WALLPAPER_CODE = 111;
+
     public static void startVideoWallpaperPreView(Context context) {
         Intent intent = createLiveWallpaperIntent(context.getPackageName(),
                 VideoLiveWallPaperService.class.getName());
         if (context instanceof Activity) {
-            ((Activity) context).startActivityForResult(intent, 0);
+            ((Activity) context).startActivityForResult(intent, REQUEST_VIDEO_WALLPAPER_CODE);
         } else {
             context.startActivity(intent);
         }

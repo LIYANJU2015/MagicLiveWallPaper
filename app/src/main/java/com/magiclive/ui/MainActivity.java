@@ -1,11 +1,13 @@
 package com.magiclive.ui;
 
+import android.app.Activity;
 import android.app.WallpaperManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
@@ -28,7 +30,10 @@ import com.magiclive.R;
 import com.magiclive.adapter.AdapterViewPager;
 import com.magiclive.bean.VideoInfoBean;
 import com.magiclive.db.VideoWallPaperDao;
+import com.magiclive.service.MirrorLiveWallPaperService;
+import com.magiclive.service.TransparentLiveWallPaperService;
 import com.magiclive.ui.base.BaseActivity;
+import com.magiclive.util.DeviceUtils;
 import com.magiclive.util.IntentUtils;
 import com.magiclive.util.SizeUtils;
 import com.magiclive.util.StatusBarColorCompat;
@@ -51,15 +56,13 @@ public class MainActivity extends BaseActivity {
 
     private AdapterViewPager mAdapter;
 
-    private CharSequence mTitle[] = {AppApplication.getContext().getString(R.string.history_record),
-            AppApplication.getContext().getString(R.string.live_wallpaper)};
+    private CharSequence mTitle[] = {AppApplication.getContext().getString(R.string.live_wallpaper),
+            AppApplication.getContext().getString(R.string.history_record)};
 
     private WallpaperHistoryFragment mHistroyFragment;
     private WallpaperListFragment mListFragment;
 
     private Context mContext;
-
-    private AsyncTask mUpdateBGTask;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -75,7 +78,7 @@ public class MainActivity extends BaseActivity {
         mAdapter = new AdapterViewPager(getSupportFragmentManager());
         mHistroyFragment = new WallpaperHistoryFragment();
         mListFragment = new WallpaperListFragment();
-        mAdapter.bindData(mTitle, mHistroyFragment, mListFragment);
+        mAdapter.bindData(mTitle, mListFragment, mHistroyFragment);
         mMainViewPager.setAdapter(mAdapter);
 
         mMainTabLayout = (TabLayout) findViewById(R.id.main_tablayout);
@@ -107,12 +110,20 @@ public class MainActivity extends BaseActivity {
         return false;
     }
 
-
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (mUpdateBGTask != null) {
-            mUpdateBGTask.cancel(true);
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == TransparentLiveWallPaperService.REQUEST_TRANSPERENT_CODE
+                || requestCode == MirrorLiveWallPaperService.REQUEST_MIRROR_CODE) {
+            if (resultCode == Activity.RESULT_OK
+                    && DeviceUtils.getSDKVersion() >= Build.VERSION_CODES.LOLLIPOP) {
+                ((AppApplication)getApplication()).getAppManager().killAll();
+
+                if (AppApplication.isShowRatingDialog()) {
+                    AppApplication.setShowRatingDialog();
+                    RatingActivity.launch(getApplicationContext());
+                }
+            }
         }
     }
 }

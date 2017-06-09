@@ -2,29 +2,32 @@ package com.magiclive.ui;
 
 
 import android.content.Context;
-
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
+import android.support.v7.widget.SwitchCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
 import android.widget.AdapterView;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.magiclive.AppApplication;
 import com.magiclive.R;
 import com.magiclive.bean.VideoInfoBean;
 import com.magiclive.db.MagicLiveContract;
+import com.magiclive.service.VideoLiveWallPaperService;
 import com.magiclive.ui.base.BaseFragment;
 import com.magiclive.util.FileUtils;
 import com.magiclive.util.TimeUtils;
+
 
 
 /**
@@ -45,10 +48,15 @@ public class WallpaperHistoryFragment extends BaseFragment implements LoaderMana
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 VideoInfoBean videoInfoBean = new VideoInfoBean();
+                if (mHeaderView != null) {
+                    position--;
+                }
                 videoInfoBean.cursorToVideoInfoBean((Cursor) mAdapter.getItem(position));
                 VideoWallPaperDetailActivity.launch(mContext, videoInfoBean);
             }
         });
+
+        mHistoryListView.setEmptyView(rootView.findViewById(R.id.empty_frame));
 
         getLoaderManager().initLoader(0, null, this);
     }
@@ -58,9 +66,63 @@ public class WallpaperHistoryFragment extends BaseFragment implements LoaderMana
         return R.layout.live_wallpaper_history_layout;
     }
 
+    private View mHeaderView;
+
+    private void initHeaderView() {
+        final TextView audioTV = (TextView)mHeaderView.findViewById(R.id.audio_tv);
+        SwitchCompat audioSwitch = (SwitchCompat)mHeaderView.findViewById(R.id.audio_switch);
+        audioSwitch.setChecked(AppApplication.getSPUtils().getBoolean("audio", true));
+        audioSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    VideoLiveWallPaperService.setVideoWallpaperVolume(mContext, false);
+                    audioTV.setText(getString(R.string.audio_enabled));
+                } else {
+                    VideoLiveWallPaperService.setVideoWallpaperVolume(mContext, true);
+                    audioTV.setText(getString(R.string.audio_disbled));
+                }
+                AppApplication.getSPUtils().put("audio", isChecked);
+            }
+        });
+
+        final TextView scaleTV = (TextView)mHeaderView.findViewById(R.id.scale_tv);
+        SwitchCompat scaleSwitch = (SwitchCompat)mHeaderView.findViewById(R.id.scale_switch);
+        scaleSwitch.setChecked(AppApplication.getSPUtils().getBoolean("scale", true));
+        scaleSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    VideoLiveWallPaperService.setScaleVideoWallpaper(mContext, true);
+                    scaleTV.setText(getString(R.string.scale_fit));
+                } else {
+                    VideoLiveWallPaperService.setScaleVideoWallpaper(mContext, false);
+                    scaleTV.setText(getString(R.string.scale_fit_with_crop));
+                }
+                AppApplication.getSPUtils().put("scale", isChecked);
+            }
+        });
+    }
+
     @Override
     public void onLoadFinished(android.support.v4.content.Loader<Cursor> loader, Cursor data) {
         if (mAdapter != null) {
+            if (data != null && data.getCount() > 0) {
+                if (mHeaderView == null) {
+                    mHeaderView = LayoutInflater.from(mActivity).inflate(R.layout.history_header_layout, null);
+                    initHeaderView();
+                    mHistoryListView.addHeaderView(mHeaderView);
+                }
+            } else {
+                if (mHeaderView != null) {
+                    try {
+                        mHistoryListView.removeHeaderView(mHeaderView);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
             mAdapter.changeCursor(data);
         }
     }

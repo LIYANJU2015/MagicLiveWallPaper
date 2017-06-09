@@ -17,6 +17,7 @@ import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 
 import com.magiclive.R;
+import com.magiclive.util.LogUtils;
 import com.magiclive.util.StatusBarColorCompat;
 
 /**
@@ -75,6 +76,7 @@ public class BaseActivity extends AppCompatActivity {
     }
 
     protected void autoShowOrHideActionBar(boolean show) {
+        LogUtils.v("autoShowOrHideActionBar show " + show);
         if (show == mActionBarShown) {
             return;
         }

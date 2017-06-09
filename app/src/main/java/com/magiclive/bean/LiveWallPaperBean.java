@@ -22,6 +22,8 @@ public class LiveWallPaperBean {
 
     public VideoInfoBean videoInfoBean;
 
+    public int videoCount;
+
     public void setLastSDCardVideoInfo(Context context) {
         Cursor cursor = null;
         try {
@@ -31,6 +33,7 @@ public class LiveWallPaperBean {
                 cursor.moveToFirst();
                 videoInfoBean = new VideoInfoBean();
                 videoInfoBean.path = cursor.getString(cursor.getColumnIndex(MediaStore.MediaColumns.DATA));
+                videoCount = cursor.getCount();
             }
         } finally {
              if (cursor != null) {

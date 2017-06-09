@@ -25,5 +25,21 @@
     <string name="rating_btn_satisfy">5 Star</string>
     <string name="system_wallpaper">System Live Wallpaper</string>
     <string name="share_content">Come and use it </string>
+
+    <string name="video_count_text">%s个视频</string>
+
+    <string name="scale_fit_with_crop">Scale Fit With Crop</string>
+    <string name="scale_fit">Scale Fit</string>
+
+    <string name="audio_disbled">Audio is disabled</string>
+    <string name="audio_enabled">Audio is enabled</string>
+
+    <string name="delete_history">Delete History</string>
+    <string name="delete_dialog_content">Do you want to delete history?</string>
+    <string name="yes">YES</string>
+    <string name="no">NO</string>
+
+    <string name="content_empty">Content is Empty</string>
+    <string name="empty_tips">Hurry up and shoot a video</string>
     
 </resources>
