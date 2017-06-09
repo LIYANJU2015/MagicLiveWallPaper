@@ -11,7 +11,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:cardBackgroundColor="@color/card"
-        android:layout_marginTop="@dimen/padding_normal"
         app:cardCornerRadius="0dp"
         app:cardElevation="2dp">
 
@@ -25,7 +24,6 @@
             <com.magiclive.widget.AspectRatioFrameLayout
                 android:layout_width="@dimen/explore_io_theme_cards_session_image_width"
                 android:layout_height="0dp"
-                android:id="@+id/thumbnail_frame"
                 app:aspectRatio="@dimen/aspect_4_3">
 
                 <ImageView
@@ -35,6 +33,17 @@
                     android:scaleType="centerCrop"
                     android:src="@drawable/video_thumbnail_default" />
 
+                <TextView
+                    android:id="@+id/time"
+                    style="@style/list_time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom|right"
+                    android:layout_margin="1dp"
+                    android:background="@color/material_black"
+                    android:textColor="@color/material_white"
+                    android:visibility="gone" />
+
                 <ImageView
                     android:id="@+id/play_icon_iv"
                     android:layout_width="60dp"
@@ -42,6 +51,10 @@
                     android:layout_gravity="center"
                     android:src="@drawable/ic_play"
                     android:visibility="gone" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
 
             </com.magiclive.widget.AspectRatioFrameLayout>
 
@@ -92,4 +105,8 @@
 
     </android.support.v7.widget.CardView>
 
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1px"
+        android:background="@color/text_on_primary" />
 </LinearLayout>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/menu_action_share"
+        android:icon="@drawable/ic_action_share"
+        android:orderInCategory="1"
+        android:title="@string/search"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/action_more"
+        android:orderInCategory="3"
+        android:title="@string/system_wallpaper"
+        app:showAsAction="never" />
+</menu>
