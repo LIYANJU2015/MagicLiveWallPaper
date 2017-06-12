@@ -2,6 +2,7 @@ package com.magiclive.util;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 
 import com.magiclive.R;
 
@@ -62,5 +63,23 @@ public final class Utils {
         shortcut.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE, iconRes);
         // 发送广播
         context.sendBroadcast(shortcut);
+    }
+
+    public static void gotoGP(Context context) {
+        final String appPackageName = context.getPackageName();
+        try {
+            Intent launchIntent = new Intent();
+            launchIntent.setPackage("com.android.vending");
+            launchIntent.setData(Uri.parse("market://details?id=" + appPackageName));
+            launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(launchIntent);
+        } catch (android.content.ActivityNotFoundException anfe) {
+            try {
+                context.startActivity(new Intent(Intent.ACTION_VIEW,
+                        Uri.parse("http://play.google.com/store/apps/details?id=" + appPackageName)));
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
     }
 }

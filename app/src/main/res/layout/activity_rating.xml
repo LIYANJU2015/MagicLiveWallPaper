@@ -30,21 +30,15 @@
                 android:paddingLeft="10dp"
                 android:paddingRight="10dp">
 
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@mipmap/ic_launcher" />
-
                 <TextView
                     android:id="@+id/title_tv"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="12dp"
                     android:gravity="center"
                     android:text="@string/rating_title"
                     android:textAllCaps="true"
                     android:textColor="@color/video_title"
-                    android:textSize="22sp" />
+                    android:textSize="20sp" />
 
             </LinearLayout>
 

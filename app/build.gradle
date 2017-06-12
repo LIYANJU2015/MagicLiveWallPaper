@@ -4,17 +4,44 @@ android {
     compileSdkVersion 25
     buildToolsVersion "25.0.3"
     defaultConfig {
-        applicationId "com.magiclivewallpaper"
+        applicationId "com.wallpaper.videolivewallpaper"
         minSdkVersion 16
         targetSdkVersion 22
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
+
+    lintOptions {
+        checkReleaseBuilds false
+        // Or, if you prefer, you can continue to check for errors in release builds,
+        // but continue the build even when errors are found:
+        abortOnError false
+    }
+
+    signingConfigs {
+        release {
+            storeFile file("keystore.jks")
+            storePassword "12345678"
+            keyAlias "MagicLiveWall"
+            keyPassword "12345678"
+        }
+    }
+
     buildTypes {
         release {
+            // 不显示Log
+            buildConfigField "boolean", "LOG_DEBUG", "false"
+            //混淆
             minifyEnabled false
+            //Zipalign优化
+            zipAlignEnabled true
+            // 移除无用的resource文件
+            shrinkResources false
+            //加载默认混淆配置文件
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            //签名
+            signingConfig signingConfigs.release
         }
     }
 }
@@ -35,4 +62,6 @@ dependencies {
     compile 'com.zhy:base-rvadapter:3.0.3'
     compile 'com.github.bumptech.glide:glide:3.7.0'
     compile 'com.google.android:flexbox:0.2.6'
+
+    compile 'com.tencent.bugly:crashreport:latest.release'
 }

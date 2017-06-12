@@ -18,6 +18,8 @@
     <color name="guillotine_background_dark">#383547</color>
     <color name="color_0c0b0a">#0c0b0a</color>
     <color name="color_ffffff40">#99FFFFFF</color>
+    <color name="colorDeepGray">#9B9B9B</color>
+    <color name="colorOffWhite">#F3F3F3</color>
 
     <!--- google io-->
 

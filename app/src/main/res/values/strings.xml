@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">MagicLiveWall</string>
+    <string name="app_name">Maigc Live WallPaper</string>
 
     <string name="history_record">Video History</string>
     <string name="live_wallpaper">Live Wallpaper</string>
@@ -41,5 +41,11 @@
 
     <string name="content_empty">Content is Empty</string>
     <string name="empty_tips">Hurry up and shoot a video</string>
+
+    <string name="rating_dialog_content">Like using Maigc Live WallPaper ? Please help us improve by rating us.</string>
+    <string name="no_thanks">NO THANKS</string>
+    <string name="rate_now">RATE NOW</string>
+    <string name="not_remind">Don\'t remind me again</string>
+
     
 </resources>

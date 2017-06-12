@@ -1,15 +1,23 @@
 package com.magiclive;
 
+import android.app.ActivityManager;
 import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
+import android.text.TextUtils;
 
+import com.magiclive.ui.MainActivity;
+import com.magiclive.util.ProcessUtils;
 import com.magiclive.util.SPUtils;
 import com.magiclive.util.Utils;
+import com.tencent.bugly.crashreport.CrashReport;
 
+import java.util.List;
+
+import static android.R.attr.process;
 import static com.magiclive.util.LogUtils.A;
 import static java.lang.System.currentTimeMillis;
 
@@ -59,6 +67,33 @@ public class AppApplication extends Application{
                 e.printStackTrace();
             }
         }
+
+        final String packageName = getPackageName();
+        if (!TextUtils.isEmpty(packageName) && packageName.equals(getCurrentProcessName())) {
+            CrashReport.initCrashReport(this, "d7855ed933", false);
+        }
+
+        if (!sSPUtils.getBoolean("Shortcut", false)) {
+            sSPUtils.put("Shortcut", true);
+            Utils.addShortcut(this, MainActivity.class, getString(R.string.app_name),
+                    R.mipmap.ic_launcher);
+        }
+    }
+
+    private String getCurrentProcessName() {
+        int pid = android.os.Process.myPid();
+        ActivityManager am = (ActivityManager)
+                getSystemService(Context.ACTIVITY_SERVICE);
+        final List<ActivityManager.RunningAppProcessInfo> appProcessInfos = am.getRunningAppProcesses();
+
+        if (appProcessInfos != null) {
+            for (ActivityManager.RunningAppProcessInfo appProcess : appProcessInfos) {
+                if (appProcess.pid == pid) {
+                    return appProcess.processName;
+                }
+            }
+        }
+        return "";
     }
 
     public static boolean isShowRatingDialog() {
