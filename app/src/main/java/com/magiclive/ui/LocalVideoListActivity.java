@@ -23,16 +23,26 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.HeaderViewListAdapter;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.google.android.gms.ads.AdSize;
+import com.google.android.gms.ads.NativeExpressAdView;
+import com.google.android.gms.ads.VideoOptions;
 import com.lapism.searchview.SearchView;
+import com.magiclive.AdViewManager;
 import com.magiclive.R;
 import com.magiclive.WallPaperUtils;
 import com.magiclive.adapter.LocalVideoListAdapter;
 import com.magiclive.ui.base.BaseActivity;
+import com.magiclive.util.DeviceUtils;
+import com.magiclive.util.NetworkUtils;
+import com.magiclive.util.ScreenUtils;
 import com.magiclive.util.SizeUtils;
 import com.zhy.adapter.recyclerview.wrapper.EmptyWrapper;
 import com.zhy.adapter.recyclerview.wrapper.HeaderAndFooterWrapper;
+
+import static com.magiclive.util.LogUtils.D;
 
 /**
  * Created by liyanju on 2017/6/5.
@@ -83,6 +93,9 @@ public class LocalVideoListActivity extends BaseActivity implements LoaderManage
         mAdapter = new LocalVideoListAdapter(this);
         headerAdapter = new HeaderAndFooterWrapper(mAdapter);
         headerAdapter.addHeaderView(createHeaderView());
+        if (NetworkUtils.isAvailableByPing()) {
+            headerAdapter.addHeaderView(createNativeAdHeaderView());
+        }
         mVideoListRecyclerView.setAdapter(headerAdapter);
 
         findViewById(R.id.subtitle).setVisibility(View.VISIBLE);
@@ -131,6 +144,50 @@ public class LocalVideoListActivity extends BaseActivity implements LoaderManage
         });
 
         getSupportLoaderManager().initLoader(0, null, this);
+    }
+
+    private View createNativeAdHeaderView() {
+        LinearLayout linearLayout = new LinearLayout(this);
+        RecyclerView.LayoutParams layoutParams =
+                new RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                        SizeUtils.dp2px(100));
+        linearLayout.setLayoutParams(layoutParams);
+
+        NativeExpressAdView adView = new NativeExpressAdView(this);
+
+        int adWidth;
+        if (SizeUtils.px2dp(ScreenUtils.getScreenWidth()) > 1200) {
+            adWidth = 1200;
+        } else {
+            adWidth = SizeUtils.px2dp(ScreenUtils.getScreenWidth());
+        }
+        adView.setAdSize(new AdSize(adWidth, 100));
+
+        adView.setAdUnitId(getString(R.string.native_small_ad1));
+        adView.setVideoOptions(new VideoOptions.Builder()
+                .setStartMuted(true)
+                .build());
+        adView.loadAd(AdViewManager.createAdRequest());
+
+        LinearLayout.LayoutParams childLayoutParams =
+                new LinearLayout.LayoutParams(SizeUtils.dp2px(adWidth),
+                        SizeUtils.dp2px(100));
+        linearLayout.addView(adView, childLayoutParams);
+
+        return linearLayout;
+    }
+
+    private View createHeaderView() {
+        View view = new View(this);
+        int headerHeight = WallPaperUtils.getActionBarHeight(this);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            headerHeight = headerHeight + SizeUtils.dp2px(8);
+        }
+        RecyclerView.LayoutParams layoutParams =
+                new RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                        headerHeight);
+        view.setLayoutParams(layoutParams);
+        return view;
     }
 
     private void setToolbarElevation(float elevation) {
@@ -193,19 +250,6 @@ public class LocalVideoListActivity extends BaseActivity implements LoaderManage
         intent.putExtra(
                 android.provider.MediaStore.EXTRA_DURATION_LIMIT, 45000);
         startActivityForResult(intent, 1);
-    }
-
-    private View createHeaderView() {
-        View view = new View(this);
-        int headerHeight = WallPaperUtils.getActionBarHeight(this);
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            headerHeight = headerHeight + SizeUtils.dp2px(8);
-        }
-        RecyclerView.LayoutParams layoutParams =
-                new RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                        headerHeight);
-        view.setLayoutParams(layoutParams);
-        return view;
     }
 
     public static void launch(Context context) {

@@ -39,6 +39,7 @@ public class ActivityLifecycle implements Application.ActivityLifecycleCallbacks
     @Override
     public void onActivityResumed(Activity activity) {
         mAppManager.setCurrentActivity(activity);
+        AdViewManager.getInstances().onAdViewResume(activity);
     }
 
     @Override
@@ -46,6 +47,7 @@ public class ActivityLifecycle implements Application.ActivityLifecycleCallbacks
         if (mAppManager.getCurrentActivity() == activity) {
             mAppManager.setCurrentActivity(null);
         }
+        AdViewManager.getInstances().onAdViewPause(activity);
     }
 
     @Override
@@ -61,5 +63,6 @@ public class ActivityLifecycle implements Application.ActivityLifecycleCallbacks
     @Override
     public void onActivityDestroyed(Activity activity) {
         mAppManager.removeActivity(activity);
+        AdViewManager.getInstances().onAdViewDestroy(activity);
     }
 }

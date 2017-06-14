@@ -14,6 +14,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.VideoView;
 
+import com.google.android.gms.ads.AdView;
+import com.magiclive.AdViewManager;
 import com.magiclive.AppApplication;
 import com.magiclive.R;
 import com.magiclive.bean.VideoInfoBean;
@@ -100,6 +102,13 @@ public class VideoWallPaperDetailActivity extends Activity implements MediaPlaye
         initRandSeekBarView();
 
         initVideoView();
+
+        initAdView();
+    }
+
+    private void initAdView() {
+        AdView adView = (AdView)findViewById(R.id.banner_view);
+        AdViewManager.getInstances().addCurrBannerAdView(VideoWallPaperDetailActivity.class, adView);
     }
 
     private void initSetTextView() {

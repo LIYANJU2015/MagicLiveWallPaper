@@ -9,7 +9,9 @@ import android.os.Build;
 import android.os.Environment;
 import android.text.TextUtils;
 
+import com.google.android.gms.ads.MobileAds;
 import com.magiclive.ui.MainActivity;
+import com.magiclive.util.LogUtils;
 import com.magiclive.util.ProcessUtils;
 import com.magiclive.util.SPUtils;
 import com.magiclive.util.Utils;
@@ -71,6 +73,8 @@ public class AppApplication extends Application{
         final String packageName = getPackageName();
         if (!TextUtils.isEmpty(packageName) && packageName.equals(getCurrentProcessName())) {
             CrashReport.initCrashReport(this, "d7855ed933", false);
+            MobileAds.initialize(this, getString(R.string.app_id));
+            LogUtils.v("AppApplication init " + packageName);
         }
 
         if (!sSPUtils.getBoolean("Shortcut", false)) {

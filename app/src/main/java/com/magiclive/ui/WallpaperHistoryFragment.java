@@ -5,9 +5,11 @@ import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SwitchCompat;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,10 +17,15 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.google.android.gms.ads.AdSize;
+import com.google.android.gms.ads.NativeExpressAdView;
+import com.google.android.gms.ads.VideoOptions;
+import com.magiclive.AdViewManager;
 import com.magiclive.AppApplication;
 import com.magiclive.R;
 import com.magiclive.bean.VideoInfoBean;
@@ -26,6 +33,9 @@ import com.magiclive.db.MagicLiveContract;
 import com.magiclive.service.VideoLiveWallPaperService;
 import com.magiclive.ui.base.BaseFragment;
 import com.magiclive.util.FileUtils;
+import com.magiclive.util.NetworkUtils;
+import com.magiclive.util.ScreenUtils;
+import com.magiclive.util.SizeUtils;
 import com.magiclive.util.TimeUtils;
 
 
@@ -49,7 +59,7 @@ public class WallpaperHistoryFragment extends BaseFragment implements LoaderMana
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 VideoInfoBean videoInfoBean = new VideoInfoBean();
                 if (mHeaderView != null) {
-                    position--;
+                    position = position - 2;
                 }
                 videoInfoBean.cursorToVideoInfoBean((Cursor) mAdapter.getItem(position));
                 VideoWallPaperDetailActivity.launch(mContext, videoInfoBean);
@@ -57,8 +67,37 @@ public class WallpaperHistoryFragment extends BaseFragment implements LoaderMana
         });
 
         mHistoryListView.setEmptyView(rootView.findViewById(R.id.empty_frame));
+        if (NetworkUtils.isAvailableByPing()) {
+            mHistoryListView.addHeaderView(createNativeAdHeaderView());
+        }
 
         getLoaderManager().initLoader(0, null, this);
+    }
+
+    private View createNativeAdHeaderView() {
+        LinearLayout linearLayout = new LinearLayout(mActivity);
+        NativeExpressAdView adView = new NativeExpressAdView(mActivity);
+
+        int adWidth;
+        if (SizeUtils.px2dp(ScreenUtils.getScreenWidth()) > 1200) {
+            adWidth = 1200;
+        } else {
+            adWidth = SizeUtils.px2dp(ScreenUtils.getScreenWidth());
+        }
+        adView.setAdSize(new AdSize(adWidth, 100));
+
+        adView.setAdUnitId(getString(R.string.native_small_ad2));
+        adView.setVideoOptions(new VideoOptions.Builder()
+                .setStartMuted(true)
+                .build());
+        adView.loadAd(AdViewManager.createAdRequest());
+
+        LinearLayout.LayoutParams childLayoutParams =
+                new LinearLayout.LayoutParams(SizeUtils.dp2px(adWidth),
+                        SizeUtils.dp2px(100));
+        linearLayout.addView(adView, childLayoutParams);
+
+        return linearLayout;
     }
 
     @Override
