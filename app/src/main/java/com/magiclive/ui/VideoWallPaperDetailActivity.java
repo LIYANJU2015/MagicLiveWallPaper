@@ -366,6 +366,10 @@ public class VideoWallPaperDetailActivity extends Activity implements MediaPlaye
     public void onPrepared(MediaPlayer mp) {
         LogUtils.v("onPrepared", " getDuration ::" + mp.getDuration()
                 + " curMin " + curMin + " curMax " + curMax);
+        if (mp.getDuration() == 0) {
+            return;
+        }
+
         mediaPlayer = mp;
         if (curMax == 0) {
             curMax = mp.getDuration();

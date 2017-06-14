@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Maigc Live WallPaper</string>
 
@@ -47,5 +48,4 @@
     <string name="rate_now">RATE NOW</string>
     <string name="not_remind">Don\'t remind me again</string>
 
-    
 </resources>

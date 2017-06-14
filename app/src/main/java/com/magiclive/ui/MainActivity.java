@@ -111,7 +111,11 @@ public class MainActivity extends BaseActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_action_share:
-                mContext.startActivity(IntentUtils.getShareTextIntent(getString(R.string.share_content)));
+                try {
+                    mContext.startActivity(IntentUtils.getShareTextIntent(getString(R.string.share_content)));
+                } catch (Throwable e) {
+                    e.printStackTrace();
+                }
                 return true;
             case R.id.action_more:
                 Intent intents = new Intent();

@@ -27,12 +27,16 @@ public class TransparentLiveWallPaperService extends WallpaperService{
     }
 
     public static void startTransparentWallpaperPreView(Context context) {
-        Intent intent = createLiveWallpaperIntent(context.getPackageName(),
-                TransparentLiveWallPaperService.class.getName());
-        if (context instanceof Activity) {
-            ((Activity)context).startActivityForResult(intent, REQUEST_TRANSPERENT_CODE);
-        } else {
-            context.startActivity(intent);
+        try {
+            Intent intent = createLiveWallpaperIntent(context.getPackageName(),
+                    TransparentLiveWallPaperService.class.getName());
+            if (context instanceof Activity) {
+                ((Activity) context).startActivityForResult(intent, REQUEST_TRANSPERENT_CODE);
+            } else {
+                context.startActivity(intent);
+            }
+        } catch (Throwable e) {
+            e.printStackTrace();
         }
     }
 
