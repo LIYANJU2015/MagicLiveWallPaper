@@ -5,6 +5,9 @@
     android:layout_height="wrap_content"
     android:gravity="center"
     android:padding="16dp"
+    android:paddingBottom="16dp"
+    android:paddingRight="16dp"
+    android:paddingTop="8dp"
     >
 
     <LinearLayout
@@ -14,16 +17,17 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-    <ImageView
-        android:src="@mipmap/ic_launcher"
-        android:layout_width="30dp"
-        android:layout_height="30dp" />
+        <ImageView
+            android:src="@mipmap/ic_launcher"
+            android:layout_width="30dp"
+            android:layout_height="30dp" />
 
         <TextView
             android:textColor="@color/video_title"
             android:textSize="@dimen/text_size_large"
             android:layout_marginLeft="8dp"
-            android:fontFamily="Roboto-Medium"
+            android:fontFamily="sans-serif"
+            android:textStyle="bold"
             android:text="@string/app_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
@@ -34,7 +38,7 @@
         android:layout_marginTop="8dp"
         android:textColor="@color/video_title"
         android:textSize="@dimen/text_size_medium"
-        android:fontFamily="Roboto-Regular"
+        android:fontFamily="sans-serif"
         android:text="@string/rating_dialog_content"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
@@ -44,6 +48,7 @@
         android:id="@+id/rating_cb"
         android:text="@string/not_remind"
         android:layout_gravity="left"
+        android:fontFamily="sans-serif"
         android:textColor="@color/video_title"
         android:textSize="@dimen/text_size_medium"
         android:layout_width="wrap_content"
@@ -63,7 +68,9 @@
             android:textColor="@color/video_title"
             android:textSize="16sp"
             android:padding="5dp"
+            android:textStyle="bold"
             android:text="@string/no_thanks"
+            android:fontFamily="sans-serif"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
@@ -73,6 +80,8 @@
             android:textColor="@color/video_title"
             android:textSize="16sp"
             android:padding="5dp"
+            android:textStyle="bold"
+            android:fontFamily="sans-serif"
             android:layout_marginLeft="16dp"
             android:text="@string/rate_now"
             android:layout_width="wrap_content"
