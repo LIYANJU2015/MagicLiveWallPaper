@@ -15,10 +15,10 @@ import com.magiclive.db.VideoWallPaperDao;
 import com.magiclive.util.LogUtils;
 import com.magiclive.util.UIThreadHelper;
 
-import java.io.File;
-import java.io.FileInputStream;
+import tv.danmaku.ijk.media.player.IMediaPlayer;
+import tv.danmaku.ijk.media.player.IjkMediaPlayer;
 
-import static android.icu.lang.UCharacter.GraphemeClusterBreak.L;
+
 import static com.magiclive.WallPaperUtils.createLiveWallpaperIntent;
 
 
@@ -51,9 +51,9 @@ public class VideoLiveWallPaperService extends WallpaperService {
         return new VideoEngine();
     }
 
-    public class VideoEngine extends Engine implements Runnable, MediaPlayer.OnCompletionListener {
+    public class VideoEngine extends Engine implements Runnable, IjkMediaPlayer.OnCompletionListener, IjkMediaPlayer.OnPreparedListener {
 
-        private MediaPlayer mediaPlayer = null;
+        private IjkMediaPlayer mediaPlayer = null;
 
         private String path;
         private int start;
@@ -147,11 +147,11 @@ public class VideoLiveWallPaperService extends WallpaperService {
                     } else if (VIDEO_SCALE_ACTION.equals(intent.getAction())) {
                         boolean fitModel = intent.getBooleanExtra("ScalingModeFit", true);
                         if (mediaPlayer != null) {
-                            if (fitModel) {
-                                mediaPlayer.setVideoScalingMode(MediaPlayer.VIDEO_SCALING_MODE_SCALE_TO_FIT);
-                            } else {
-                                mediaPlayer.setVideoScalingMode(MediaPlayer.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING);
-                            }
+//                            if (fitModel) {
+//                                mediaPlayer.setVideoScalingMode(MediaPlayer.VIDEO_SCALING_MODE_SCALE_TO_FIT);
+//                            } else {
+//                                mediaPlayer.setVideoScalingMode(MediaPlayer.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING);
+//                            }
                         }
                     }
                 }
@@ -163,7 +163,7 @@ public class VideoLiveWallPaperService extends WallpaperService {
                 float newVolume = volume * 1.f / 100f;
                 LogUtils.v("setVolume", " volume " + volume + " videoVolume " + newVolume);
                 mediaPlayer.setVolume(newVolume, newVolume);
-                mediaPlayer.setVideoScalingMode(scalingMode);
+//                mediaPlayer.setVideoScalingMode(scalingMode);
                 mediaPlayer.seekTo(start);
             }
         }
@@ -210,32 +210,35 @@ public class VideoLiveWallPaperService extends WallpaperService {
         }
 
         private synchronized void initMediaPlayer() {
-            if (mediaPlayer == null) {
-                mediaPlayer = new MediaPlayer();
-                mediaPlayer.setSurface(getSurfaceHolder().getSurface());
-            }
+            releasePlayer();
+            mediaPlayer = new IjkMediaPlayer();
+            mediaPlayer.setSurface(getSurfaceHolder().getSurface());
             try {
                 LogUtils.v("initMediaPlayer", " path " + path);
                 if (TextUtils.isEmpty(path)) {
                     return;
                 }
-                mediaPlayer.reset();
                 mediaPlayer.setDataSource(path);
                 mediaPlayer.setOnCompletionListener(this);
-                if (curVideoInfoBean != null) {
-                    mediaPlayer.setVideoScalingMode(curVideoInfoBean.scalingMode);
-                }
-                mediaPlayer.prepare();
-                setPlayerConfig();
-                mediaPlayer.start();
-                startUpdateProgress();
+                mediaPlayer.setOnPreparedListener(this);
+//                if (curVideoInfoBean != null) {
+//                    mediaPlayer.setVideoScalingMode(curVideoInfoBean.scalingMode);
+//                }
+                mediaPlayer.prepareAsync();
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
 
         @Override
-        public void onCompletion(MediaPlayer mp) {
+        public void onPrepared(IMediaPlayer iMediaPlayer) {
+            setPlayerConfig();
+            mediaPlayer.start();
+            startUpdateProgress();
+        }
+
+        @Override
+        public void onCompletion(IMediaPlayer mp) {
             LogUtils.v("VideoEngine", "onCompletion >>");
             mediaPlayer.seekTo(start);
             mediaPlayer.start();
@@ -246,7 +249,7 @@ public class VideoLiveWallPaperService extends WallpaperService {
                 return;
             }
 
-            int currentPosition = end - mediaPlayer.getCurrentPosition();
+            int currentPosition = end - (int)mediaPlayer.getCurrentPosition();
             if (currentPosition <= 0) {
                 LogUtils.v("VideoEngine", "startUpdateProgress seekto >>");
                 mediaPlayer.seekTo(this.start);
@@ -270,8 +273,8 @@ public class VideoLiveWallPaperService extends WallpaperService {
         }
 
         public void releasePlayer() {
-            UIThreadHelper.getInstance().getHandler().removeCallbacks(this);
             if (null != mediaPlayer) {
+                UIThreadHelper.getInstance().getHandler().removeCallbacks(this);
                 mediaPlayer.release();
                 mediaPlayer = null;
             }
