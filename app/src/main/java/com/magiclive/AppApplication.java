@@ -37,6 +37,9 @@ public class AppApplication extends Application{
     private AppManager appManager;
 
     public static SPUtils getSPUtils() {
+        if (sSPUtils == null) {
+            sSPUtils = new SPUtils("magiclive");
+        }
         return sSPUtils;
     }
 

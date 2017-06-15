@@ -64,6 +64,10 @@ public class VideoWallPaperDetailActivity extends Activity implements MediaPlaye
     private LinearLayout bottomLinear;
 
     private void loadVideoInfo(VideoInfoBean videoInfoBean) {
+        if (videoInfoBean == null) {
+            return;
+        }
+
         if (!AppApplication.getSPUtils().getBoolean("audio", true)) {
             videoInfoBean.volume = 0;
         }
