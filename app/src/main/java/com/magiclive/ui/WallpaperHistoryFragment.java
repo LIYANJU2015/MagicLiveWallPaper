@@ -43,7 +43,6 @@ public class WallpaperHistoryFragment extends BaseFragment implements LoaderMana
     public void initView(View rootView) {
         mHistoryListView = (ListView)rootView.findViewById(R.id.history_listview);
         mAdapter = new WallPaperHistoryAdapter(mContext);
-        mHistoryListView.setAdapter(mAdapter);
         mHistoryListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -57,6 +56,12 @@ public class WallpaperHistoryFragment extends BaseFragment implements LoaderMana
         });
 
         mHistoryListView.setEmptyView(rootView.findViewById(R.id.empty_frame));
+
+        mHeaderView = LayoutInflater.from(mActivity).inflate(R.layout.history_header_layout, null);
+        initHeaderView();
+        mHistoryListView.addHeaderView(mHeaderView);
+
+        mHistoryListView.setAdapter(mAdapter);
 
         getLoaderManager().initLoader(0, null, this);
     }
@@ -107,13 +112,8 @@ public class WallpaperHistoryFragment extends BaseFragment implements LoaderMana
     @Override
     public void onLoadFinished(android.support.v4.content.Loader<Cursor> loader, Cursor data) {
         if (mAdapter != null) {
-            if (data != null && data.getCount() > 0) {
-                if (mHeaderView == null) {
-                    mHeaderView = LayoutInflater.from(mActivity).inflate(R.layout.history_header_layout, null);
-                    initHeaderView();
-                    mHistoryListView.addHeaderView(mHeaderView);
-                }
-            } else {
+            mAdapter.changeCursor(data);
+            if (data == null || data.getCount() == 0) {
                 if (mHeaderView != null) {
                     try {
                         mHistoryListView.removeHeaderView(mHeaderView);
@@ -122,8 +122,6 @@ public class WallpaperHistoryFragment extends BaseFragment implements LoaderMana
                     }
                 }
             }
-
-            mAdapter.changeCursor(data);
         }
     }
 

@@ -6,9 +6,11 @@ import android.media.MediaPlayer;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.provider.MediaStore;
+import android.text.TextUtils;
 
 import com.magiclive.AppApplication;
 import com.magiclive.db.MagicLiveContract;
+import com.magiclive.util.FileUtils;
 
 /**
  * Created by liyanju on 2017/6/3.
@@ -16,9 +18,9 @@ import com.magiclive.db.MagicLiveContract;
 
 public class VideoInfoBean implements Parcelable{
 
-    public String name;
+    public String name = "";
 
-    public String path;
+    public String path = "";
 
     public long size;
 
@@ -42,6 +44,9 @@ public class VideoInfoBean implements Parcelable{
         videoInfo.name = cursor.getString(cursor.getColumnIndex(MediaStore.MediaColumns.DISPLAY_NAME));
         videoInfo.size = cursor.getLong(cursor.getColumnIndex(MediaStore.MediaColumns.SIZE));
         videoInfo.duration = cursor.getLong(cursor.getColumnIndex(MediaStore.Video.VideoColumns.DURATION));
+        if (TextUtils.isEmpty(videoInfo.name)) {
+            videoInfo.name = FileUtils.getFileName(videoInfo.path);
+        }
         return videoInfo;
     }
 

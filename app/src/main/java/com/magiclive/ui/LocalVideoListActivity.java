@@ -23,7 +23,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.HeaderViewListAdapter;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+
 
 import com.lapism.searchview.SearchView;
 import com.magiclive.R;

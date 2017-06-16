@@ -37,7 +37,7 @@ public class ENPlayView extends View {
 
     public static int DEFAULT_BG_LINE_WIDTH = 4;
 
-    public static int DEFAULT_DURATION = 900;
+    public static int DEFAULT_DURATION = 600;
 
     private int mCurrentState = STATE_PAUSE;
 

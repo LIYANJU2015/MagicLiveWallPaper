@@ -6,12 +6,12 @@
     android:background="@color/body_text_1"
     android:gravity="center_horizontal">
 
-    <com.magiclive.widget.CustomVideoView
+    <com.devbrackets.android.exomedia.ui.widget.VideoView
         android:id="@+id/video_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_gravity="center"
-        android:visibility="gone" />
+        android:visibility="gone"
+        app:useDefaultControls="false"/>
 
 
     <com.magiclive.widget.ENPlayView

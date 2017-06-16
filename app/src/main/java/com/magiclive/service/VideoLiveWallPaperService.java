@@ -5,18 +5,21 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.media.MediaPlayer;
+
+import android.net.Uri;
 import android.service.wallpaper.WallpaperService;
 import android.text.TextUtils;
 import android.view.SurfaceHolder;
 
+import com.devbrackets.android.exomedia.core.exoplayer.ExoMediaPlayer;
+import com.devbrackets.android.exomedia.core.listener.ExoPlayerListener;
+import com.google.android.exoplayer2.ExoPlayer;
 import com.magiclive.bean.VideoInfoBean;
 import com.magiclive.db.VideoWallPaperDao;
 import com.magiclive.util.LogUtils;
 import com.magiclive.util.UIThreadHelper;
 
-import tv.danmaku.ijk.media.player.IMediaPlayer;
-import tv.danmaku.ijk.media.player.IjkMediaPlayer;
+
 
 
 import static com.magiclive.WallPaperUtils.createLiveWallpaperIntent;
@@ -51,9 +54,9 @@ public class VideoLiveWallPaperService extends WallpaperService {
         return new VideoEngine();
     }
 
-    public class VideoEngine extends Engine implements Runnable, IjkMediaPlayer.OnCompletionListener, IjkMediaPlayer.OnPreparedListener {
+    public class VideoEngine extends Engine implements Runnable, ExoPlayerListener {
 
-        private IjkMediaPlayer mediaPlayer = null;
+        private ExoMediaPlayer mediaPlayer = null;
 
         private String path;
         private int start;
@@ -121,10 +124,10 @@ public class VideoLiveWallPaperService extends WallpaperService {
                         boolean silence = intent.getBooleanExtra(VIDEO_VOLUME, false);
                         if (mediaPlayer != null) {
                             if (silence) {
-                                mediaPlayer.setVolume(0f, 0f);
+                                mediaPlayer.setVolume(0f);
                             } else {
                                 float newVolume = volume * 1.f / 100f;
-                                mediaPlayer.setVolume(newVolume, newVolume);
+                                mediaPlayer.setVolume(newVolume);
                             }
                         }
                     } else if (VIDEO_SET_ACTION.equals(intent.getAction())) {
@@ -136,7 +139,7 @@ public class VideoLiveWallPaperService extends WallpaperService {
                             releasePlayer();
                             initMediaPlayer();
                             if (!isVisible()) {
-                                mediaPlayer.pause();
+                                mediaPlayer.setPlayWhenReady(false);
                             }
                         } else {
                             initVideoWallPaperParam(curVideoInfoBean);
@@ -158,11 +161,34 @@ public class VideoLiveWallPaperService extends WallpaperService {
             }, intentFilter);
         }
 
+        @Override
+        public void onStateChanged(boolean playWhenReady, int playbackState) {
+            if (playbackState == ExoPlayer.STATE_ENDED) {
+                mediaPlayer.seekTo(start);
+                mediaPlayer.setPlayWhenReady(true);
+            }
+        }
+
+        @Override
+        public void onError(ExoMediaPlayer exoMediaPlayer, Exception e) {
+
+        }
+
+        @Override
+        public void onVideoSizeChanged(int width, int height, int unAppliedRotationDegrees, float pixelWidthHeightRatio) {
+
+        }
+
+        @Override
+        public void onSeekComplete() {
+
+        }
+
         private void setPlayerConfig() {
             if (mediaPlayer != null) {
                 float newVolume = volume * 1.f / 100f;
                 LogUtils.v("setVolume", " volume " + volume + " videoVolume " + newVolume);
-                mediaPlayer.setVolume(newVolume, newVolume);
+                mediaPlayer.setVolume(newVolume);
 //                mediaPlayer.setVideoScalingMode(scalingMode);
                 mediaPlayer.seekTo(start);
             }
@@ -192,12 +218,12 @@ public class VideoLiveWallPaperService extends WallpaperService {
                     initMediaPlayer();
                     return;
                 } else {
-                    mediaPlayer.start();
+                    mediaPlayer.setPlayWhenReady(true);
                 }
                 startUpdateProgress();
             }  else {
-                if (mediaPlayer != null && mediaPlayer.isPlaying()) {
-                    mediaPlayer.pause();
+                if (mediaPlayer != null && mediaPlayer.getPlayWhenReady()) {
+                    mediaPlayer.setPlayWhenReady(false);
                 }
             }
         }
@@ -211,37 +237,25 @@ public class VideoLiveWallPaperService extends WallpaperService {
 
         private synchronized void initMediaPlayer() {
             releasePlayer();
-            mediaPlayer = new IjkMediaPlayer();
+            mediaPlayer = new ExoMediaPlayer(context);
             mediaPlayer.setSurface(getSurfaceHolder().getSurface());
             try {
                 LogUtils.v("initMediaPlayer", " path " + path);
                 if (TextUtils.isEmpty(path)) {
                     return;
                 }
-                mediaPlayer.setDataSource(path);
-                mediaPlayer.setOnCompletionListener(this);
-                mediaPlayer.setOnPreparedListener(this);
+                mediaPlayer.setUri(Uri.parse(path));
+                mediaPlayer.addListener(this);
 //                if (curVideoInfoBean != null) {
 //                    mediaPlayer.setVideoScalingMode(curVideoInfoBean.scalingMode);
 //                }
-                mediaPlayer.prepareAsync();
+                mediaPlayer.prepare();
+                setPlayerConfig();
+                mediaPlayer.setPlayWhenReady(true);
+                startUpdateProgress();
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        }
-
-        @Override
-        public void onPrepared(IMediaPlayer iMediaPlayer) {
-            setPlayerConfig();
-            mediaPlayer.start();
-            startUpdateProgress();
-        }
-
-        @Override
-        public void onCompletion(IMediaPlayer mp) {
-            LogUtils.v("VideoEngine", "onCompletion >>");
-            mediaPlayer.seekTo(start);
-            mediaPlayer.start();
         }
 
         private void startUpdateProgress() {

@@ -4,16 +4,22 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Rect;
+
 import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.VideoView;
 
+
+import com.devbrackets.android.exomedia.core.video.scale.ScaleType;
+import com.devbrackets.android.exomedia.listener.OnCompletionListener;
+import com.devbrackets.android.exomedia.listener.OnPreparedListener;
+import com.devbrackets.android.exomedia.ui.widget.VideoView;
 import com.magiclive.AppApplication;
 import com.magiclive.R;
 import com.magiclive.bean.VideoInfoBean;
@@ -34,7 +40,7 @@ import com.magiclive.widget.RangeSeekBar;
  * Created by liyanju on 2017/6/3.
  */
 
-public class VideoWallPaperDetailActivity extends Activity implements MediaPlayer.OnPreparedListener, Runnable, MediaPlayer.OnCompletionListener {
+public class VideoWallPaperDetailActivity extends Activity implements OnPreparedListener, Runnable, OnCompletionListener {
 
     private RangeSeekBar rangeSeekBar;
 
@@ -46,7 +52,7 @@ public class VideoWallPaperDetailActivity extends Activity implements MediaPlaye
     private float curMax;
     private float curVolume;
 
-    private int totalDuration;
+    private long totalDuration;
 
     private ENPlayView enPlayView;
 
@@ -62,6 +68,10 @@ public class VideoWallPaperDetailActivity extends Activity implements MediaPlaye
     private LinearLayout bottomLinear;
 
     private void loadVideoInfo(VideoInfoBean videoInfoBean) {
+        if (videoInfoBean == null) {
+            return;
+        }
+
         if (!AppApplication.getSPUtils().getBoolean("audio", true)) {
             videoInfoBean.volume = 0;
         }
@@ -185,7 +195,6 @@ public class VideoWallPaperDetailActivity extends Activity implements MediaPlaye
         videoView.setOnPreparedListener(this);
         videoView.setOnCompletionListener(this);
         videoView.setVideoPath(curVideoInfo.path);
-        videoView.setMediaController(null);
         videoView.requestFocus();
     }
 
@@ -198,8 +207,8 @@ public class VideoWallPaperDetailActivity extends Activity implements MediaPlaye
                 if (!isFromUser) {
                     curVolume = min;
                     curVideoInfo.volume = (int)curVolume;
-                    if (mediaPlayer != null) {
-                        mediaPlayer.setVolume(curVideoInfo.volume * 1.f / 100f, curVideoInfo.volume * 1.f / 100f);
+                    if (videoView != null) {
+                        videoView.setVolume(curVideoInfo.volume * 1.f / 100f);
                     }
                 }
                 volumeTV.setText(String.format(getString(R.string.volume_text),
@@ -223,7 +232,7 @@ public class VideoWallPaperDetailActivity extends Activity implements MediaPlaye
                 if (max <= 1.0){
                     return;
                 }
-
+                LogUtils.v("onRangeChanged", "setOnRangeChangedListener");
                 isSeeking = true;
                 rangeSeekBar.resetProgress();
 
@@ -305,7 +314,7 @@ public class VideoWallPaperDetailActivity extends Activity implements MediaPlaye
     }
 
     @Override
-    public void onCompletion(MediaPlayer mp) {
+    public void onCompletion() {
         enPlayView.pause();
     }
 
@@ -313,8 +322,10 @@ public class VideoWallPaperDetailActivity extends Activity implements MediaPlaye
         if (!videoView.isPlaying()) {
             enPlayView.play();
             if (currentPosition + 100 >= curMax) {
+                LogUtils.v("videoStart seekTo curMin >>" + curMin);
                 videoView.seekTo((int) curMin);
             } else {
+                LogUtils.v("videoStart seekTo currentPosition >>" + currentPosition);
                 videoView.seekTo(currentPosition);
             }
             videoView.start();
@@ -326,10 +337,10 @@ public class VideoWallPaperDetailActivity extends Activity implements MediaPlaye
         videoView.pause();
     }
 
-    private int currentPosition = 0;
+    private long currentPosition = 0;
 
     private void startUpdateProgress() {
-        int duration = (int)curMax - videoView.getCurrentPosition();
+        long duration = (int)curMax - videoView.getCurrentPosition();
         LogUtils.v(" startUpdateProgress duration " + duration
                 + " getCurrentPosition : " + videoView.getCurrentPosition() + " curMax " + curMax);
         currentPosition = videoView.getCurrentPosition();
@@ -341,7 +352,7 @@ public class VideoWallPaperDetailActivity extends Activity implements MediaPlaye
             }
         }
 
-        runTimeTV.setText(TimeUtils.stringForTime(Math.abs(videoView.getCurrentPosition() - (int)curMin)));
+        runTimeTV.setText(TimeUtils.stringForTime(Math.abs((int)videoView.getCurrentPosition() - (int)curMin)));
 
         UIThreadHelper.getInstance().getHandler().removeCallbacks(this);
         if (videoView.isPlaying() && !isSeeking) {
@@ -360,27 +371,23 @@ public class VideoWallPaperDetailActivity extends Activity implements MediaPlaye
         startUpdateProgress();
     }
 
-    private MediaPlayer mediaPlayer;
-
     @Override
-    public void onPrepared(MediaPlayer mp) {
-        LogUtils.v("onPrepared", " getDuration ::" + mp.getDuration()
+    public void onPrepared() {
+        LogUtils.v("onPrepared", " getDuration ::" + videoView.getDuration()
                 + " curMin " + curMin + " curMax " + curMax);
-        if (mp.getDuration() == 0) {
+        if (videoView.getDuration() == 0) {
             return;
         }
 
-        mediaPlayer = mp;
         if (curMax == 0) {
-            curMax = mp.getDuration();
+            curMax = videoView.getDuration();
         }
-        totalDuration = mp.getDuration();
+        totalDuration = videoView.getDuration();
 
-        rangeSeekBar.setRules(0, mp.getDuration(), 1f, 1);
+        rangeSeekBar.setRules(0, totalDuration, 1f, 1);
         rangeSeekBar.setValue(curMin, curMax);
 
-        mediaPlayer.setVolume(curVolume, curVolume);
-        mediaPlayer.setVideoScalingMode(curVideoInfo.scalingMode);
+        videoView.setVolume(curVolume);
 
         currentPosition = (int)curMin;
 
@@ -389,7 +396,7 @@ public class VideoWallPaperDetailActivity extends Activity implements MediaPlaye
         startUpdateProgress();
 
         starTimeTV.setText(TimeUtils.stringForTime(0));
-        endTimeTV.setText(TimeUtils.stringForTime(totalDuration));
+        endTimeTV.setText(TimeUtils.stringForTime((int)totalDuration));
     }
 
     public static void launch(Context context, VideoInfoBean videoInfoBean) {
