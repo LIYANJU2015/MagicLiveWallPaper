@@ -59,6 +59,8 @@ dependencies {
     })
     testCompile 'junit:junit:4.12'
 
+    compile files('libs/jsoup-1.10.3.jar')
+
     compile(name:'searchview_release', ext:'aar')
 
     compile 'com.android.support:appcompat-v7:25.3.1'
