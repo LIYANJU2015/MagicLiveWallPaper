@@ -47,5 +47,18 @@
     <string name="rate_now">RATE NOW</string>
     <string name="not_remind">Don\'t remind me again</string>
 
+    <string name="re_loading">Reload</string>
+
+    <string name="online_videowallpaper">Online WallPaper</string>
+    <string name="download">Download</string>
+
+
+    <string name="download_notification_title">Video WallPaper</string>
+    <string name="download_notification_status">Download Status</string>
+
+    <string name="start_download">Start downloading</string>
+    <string name="error_download">Download error</string>
+    <string name="finish_download">Download complete</string>
+    <string name="downloading">Downloading...</string>
     
 </resources>

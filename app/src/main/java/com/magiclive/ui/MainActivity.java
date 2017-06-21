@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
@@ -70,7 +71,8 @@ public class MainActivity extends BaseActivity {
     private AdapterViewPager mAdapter;
 
     private CharSequence mTitle[] = {AppApplication.getContext().getString(R.string.live_wallpaper),
-            AppApplication.getContext().getString(R.string.history_record)};
+            AppApplication.getContext().getString(R.string.history_record),
+            AppApplication.getContext().getString(R.string.online_videowallpaper)};
 
     private WallpaperHistoryFragment mHistroyFragment;
     private WallpaperListFragment mListFragment;
@@ -91,22 +93,34 @@ public class MainActivity extends BaseActivity {
         mAdapter = new AdapterViewPager(getSupportFragmentManager());
         mHistroyFragment = new WallpaperHistoryFragment();
         mListFragment = new WallpaperListFragment();
-        mAdapter.bindData(mTitle, mListFragment, mHistroyFragment);
+        mAdapter.bindData(mTitle, mListFragment, mHistroyFragment, new OnlineVideoWallPaperFragment());
+        mMainViewPager.setOffscreenPageLimit(3);
         mMainViewPager.setAdapter(mAdapter);
 
         mMainTabLayout = (TabLayout) findViewById(R.id.main_tablayout);
-        mMainTabLayout.setTabMode(TabLayout.MODE_FIXED);
+        mMainTabLayout.setTabMode(TabLayout.MODE_SCROLLABLE);
         mMainTabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
         mMainTabLayout.setupWithViewPager(mMainViewPager);
         mMainTabLayout.setSelectedTabIndicatorHeight(SizeUtils.dp2px(3));
     }
 
+    private DownloadActionProvider mDownloadProvider;
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main_menu, menu);
+        MenuItem menuItem = menu.findItem(R.id.menu_download);
+        mDownloadProvider = (DownloadActionProvider) MenuItemCompat.getActionProvider(menuItem);
+        mDownloadProvider.setOnClickListener(0, new DownloadActionProvider.OnClickListener() {
+            @Override
+            public void onClick(int what) {
+
+            }
+        });
         return true;
     }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {

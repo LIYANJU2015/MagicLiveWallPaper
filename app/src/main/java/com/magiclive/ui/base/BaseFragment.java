@@ -9,6 +9,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.magiclive.R;
+
 
 /**
  * Created by liyanju on 2017/6/5.
@@ -31,7 +33,7 @@ public abstract class BaseFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(onLayoutRes(), null);
+        return LayoutInflater.from(mActivity).inflate(onLayoutRes(), null);
     }
 
     @Override

@@ -24,7 +24,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/tab_background"
-            app:tabContentStart="?actionBarInsetStart"
+
             app:tabIndicatorColor="@color/tab_selected_strip"
             app:tabTextAppearance="@style/MyScheduleTabTextAppearancce"
             app:tabSelectedTextColor="@color/text_on_primary"

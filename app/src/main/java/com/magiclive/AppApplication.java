@@ -10,6 +10,7 @@ import android.os.Environment;
 import android.text.TextUtils;
 
 import com.google.android.gms.ads.MobileAds;
+import com.liulishuo.filedownloader.FileDownloader;
 import com.magiclive.ui.MainActivity;
 import com.magiclive.util.LogUtils;
 import com.magiclive.util.ProcessUtils;
@@ -55,7 +56,10 @@ public class AppApplication extends Application{
     public void onCreate() {
         super.onCreate();
         sContext = this;
+
         Utils.init(this);
+
+        FileDownloader.init(sContext);
 
         sSPUtils = new SPUtils("magiclive");
 

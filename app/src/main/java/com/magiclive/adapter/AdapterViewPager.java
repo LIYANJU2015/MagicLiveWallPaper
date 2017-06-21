@@ -1,10 +1,11 @@
 package com.magiclive.adapter;
 
+
+
 import android.os.Parcelable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.app.FragmentStatePagerAdapter;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -48,6 +49,11 @@ public class AdapterViewPager extends FragmentPagerAdapter {
             return mTitles[position];
         }
         return super.getPageTitle(position);
+    }
+
+    @Override
+    public int getItemPosition(Object object) {
+        return POSITION_NONE;
     }
 
     @Override
