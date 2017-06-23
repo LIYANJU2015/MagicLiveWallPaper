@@ -1,6 +1,5 @@
 package com.magiclive.db;
 
-import android.content.ContentUris;
 import android.net.Uri;
 
 import com.magiclive.db.base.TableInfo;
@@ -21,14 +20,17 @@ public class MagicLiveContract {
 
         public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITIES + "/" + TABLE_NAME);
 
-        public static final String VIDEO_NAME = "video_name";
         public static final String VIDEO_PATH = "video_path";
-        public static final String VIDEO_SIZE = "video_size";
         public static final String VIDEO_STATUS = "video_status";
         public static final String VIDEO_DETAL_URL = "detail_url";
         public static final String VIDEO_IMGURL = "imgUrl";
         public static final String VIDEO_DURATION = "duration";
         public static final String VIDEO_TITLE = "title";
+        public static final String VIDEO_URL = "video_url";
+        public static final String VIDEO_ID = "video_id";
+        public static final String VIDEO_TOTALSIZE = "total_size";
+        public static final String VIDEO_COMPLETESIZE = "complete_size";
+        public static final String VIDEO_NEW = "video_new";
 
         @Override
         public String onTableName() {
@@ -42,15 +44,18 @@ public class MagicLiveContract {
 
         @Override
         public void onInitColumnsMap(Map<String, String> columnsMap) {
-            columnsMap.put(VIDEO_NAME, "text");
             columnsMap.put(VIDEO_PATH, "text");
-            columnsMap.put(VIDEO_SIZE, "int");
             columnsMap.put(VIDEO_STATUS, "int");
             columnsMap.put(VIDEO_DETAL_URL, "text");
             columnsMap.put(VIDEO_IMGURL, "text");
             columnsMap.put(VIDEO_DURATION, "text");
             columnsMap.put(VIDEO_TITLE, "text");
-        }
+            columnsMap.put(VIDEO_URL, "text");
+            columnsMap.put(VIDEO_ID, "int");
+            columnsMap.put(VIDEO_TOTALSIZE, "int");
+            columnsMap.put(VIDEO_COMPLETESIZE, "int");
+            columnsMap.put(VIDEO_NEW, "int");
+    }
     }
 
     public static class VideoContract extends TableInfo {

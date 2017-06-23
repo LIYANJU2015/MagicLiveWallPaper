@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.ImageView;
 
 import com.magiclive.R;
+import com.magiclive.db.DownloadVideoDao;
 
 import q.rorbin.badgeview.Badge;
 import q.rorbin.badgeview.QBadgeView;
@@ -42,6 +43,11 @@ public class DownloadActionProvider extends ActionProvider{
 
         mBadge = new QBadgeView(getContext()).bindTarget(mIvIcon);
         mBadge.setGravityOffset(-2, true);
+
+        int count = DownloadVideoDao.getDownloadNewCount();
+        if (count > 0) {
+            mBadge.setBadgeNumber(count);
+        }
         return view;
     }
 

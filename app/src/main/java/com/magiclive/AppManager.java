@@ -190,6 +190,18 @@ public class AppManager {
         return false;
     }
 
+    public Activity getActivity(Class clazz) {
+        if (mActivityList == null) {
+            return null;
+        }
+        for (Activity activity : mActivityList) {
+            if (activity.getClass().equals(clazz)) {
+                return activity;
+            }
+        }
+        return null;
+    }
+
 
     /**
      * 关闭所有activity

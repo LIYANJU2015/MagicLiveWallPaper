@@ -11,18 +11,16 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v7.app.ActionBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.text.Html;
 import android.text.TextUtils;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.HeaderViewListAdapter;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -35,14 +33,10 @@ import com.magiclive.R;
 import com.magiclive.WallPaperUtils;
 import com.magiclive.adapter.LocalVideoListAdapter;
 import com.magiclive.ui.base.BaseActivity;
-import com.magiclive.util.DeviceUtils;
 import com.magiclive.util.NetworkUtils;
 import com.magiclive.util.ScreenUtils;
 import com.magiclive.util.SizeUtils;
-import com.zhy.adapter.recyclerview.wrapper.EmptyWrapper;
 import com.zhy.adapter.recyclerview.wrapper.HeaderAndFooterWrapper;
-
-import static com.magiclive.util.LogUtils.D;
 
 /**
  * Created by liyanju on 2017/6/5.
@@ -62,6 +56,16 @@ public class LocalVideoListActivity extends BaseActivity implements LoaderManage
     private String mOrderContent;
 
     private Toolbar mToolbar;
+
+    @Override
+    public boolean isAddNavigationBackIcon() {
+        return true;
+    }
+
+    @Override
+    public void onSetToolbar(ActionBar toolbar) {
+        toolbar.setTitle(R.string.local_download);
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {

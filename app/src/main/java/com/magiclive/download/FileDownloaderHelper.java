@@ -8,24 +8,27 @@ import android.os.Environment;
 import android.support.v4.app.NotificationCompat;
 
 import com.liulishuo.filedownloader.BaseDownloadTask;
+import com.liulishuo.filedownloader.FileDownloadListener;
 import com.liulishuo.filedownloader.FileDownloader;
 import com.liulishuo.filedownloader.model.FileDownloadStatus;
 import com.liulishuo.filedownloader.notification.BaseNotificationItem;
 import com.liulishuo.filedownloader.notification.FileDownloadNotificationHelper;
 import com.liulishuo.filedownloader.notification.FileDownloadNotificationListener;
 import com.liulishuo.filedownloader.util.FileDownloadHelper;
+import com.liulishuo.filedownloader.util.FileDownloadUtils;
 import com.magiclive.AppApplication;
 import com.magiclive.R;
 import com.magiclive.bean.DownloadVideo;
+import com.magiclive.bean.OnlineVideoWallPaper;
 import com.magiclive.db.DownloadVideoDao;
 import com.magiclive.ui.MainActivity;
+import com.magiclive.util.BroadcastReceiverUtil;
 import com.magiclive.util.FileUtils;
 import com.magiclive.util.LogUtils;
+import com.magiclive.util.ThreadPoolUtils;
 import com.magiclive.util.ToastUtils;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 
 /**
@@ -38,114 +41,103 @@ public class FileDownloaderHelper {
 
     private static FileDownloaderHelper fileDownloaderHelper = new FileDownloaderHelper();
 
-    private List<BaseDownloadTask> tasks = new ArrayList<>(5);
-
     public static Context context;
 
     private File defaultFile;
 
     private int downloadId;
 
+    private ThreadPoolUtils threadPoolUtils = new ThreadPoolUtils(ThreadPoolUtils.FixedThread, 1);
+
+    public static final int TITLE_KEY = 101;
+    public static final int DETAIL_KEY = 102;
+
     public FileDownloaderHelper() {
         context = AppApplication.getContext();
         defaultFile = context.getExternalFilesDir(Environment.DIRECTORY_MOVIES);
     }
 
-    public void addDownloadTask(String url, String refererUrl, String detailUrl) {
+    public void addDownloadTask(String downloadUrl, OnlineVideoWallPaper.OnlineVideo onlineVideo) {
         if (!defaultFile.exists() || !defaultFile.canWrite() || !defaultFile.canRead()) {
             defaultFile = new File(Environment.getExternalStorageDirectory(), "video_wallpaper");
         }
         FileUtils.createOrExistsDir(defaultFile);
-        String path = defaultFile + File.separator + String.valueOf(System.currentTimeMillis())+".mp4";
-        LogUtils.v(TAG, "addDownloadTask path " + path + " refererUrl "
-                + refererUrl + " detailUrl "+ detailUrl);
+        String path = defaultFile + File.separator + String.valueOf(onlineVideo.title) + ".mp4";
+        LogUtils.v(TAG, "addDownloadTask path " + path + " downloadUrl "
+                + downloadUrl);
 
-        if (downloadId == 0) {
-            downloadId = FileDownloader.getImpl().create(url)
-                    .setPath(path)
-                    .setTag(detailUrl)
-                    .addHeader("Referer", refererUrl)
-                    .setListener(new NotificationListener(new FileDownloadNotificationHelper<NotificationItem>()))
-                    .start();
-
-            DownloadVideo downloadVideo = new DownloadVideo();
-            downloadVideo.filePath = path;
-            downloadVideo.status = 100;
-            downloadVideo.detailUrl = detailUrl;
-            DownloadVideoDao.addAndUpdateDownloadVideo(context, downloadVideo);
+        int createDownloadId = FileDownloadUtils.generateId(downloadUrl, path);
+        if (DownloadVideoDao.getDownloadVideoById(context, createDownloadId) != null) {
+            ToastUtils.showShortToastSafe(R.string.download_added);
+            return;
         }
+
+        downloadId = FileDownloader.getImpl().create(downloadUrl)
+                .setPath(path)
+                .setTag(TITLE_KEY, onlineVideo.title)
+                .setTag(DETAIL_KEY, onlineVideo.detailUrl)
+                .setListener(new SelfNotificationListener(new FileDownloadNotificationHelper()))
+                .start();
+        LogUtils.v(TAG, " addDownloadTask downloadId " + downloadId
+                + " createDownloadId " + createDownloadId);
+        DownloadVideo downloadVideo = new DownloadVideo();
+        downloadVideo.url = downloadUrl;
+        downloadVideo.id = downloadId;
+        downloadVideo.filePath = path;
+        downloadVideo.assignDownloadVideo(onlineVideo);
+
+        DownloadVideoDao.addAndUpdateDownloadVideo(context, downloadVideo);
+
+        ToastUtils.showShortToastSafe(R.string.download_add_success);
+
     }
 
     public static FileDownloaderHelper getInstances() {
         return fileDownloaderHelper;
     }
 
-    private class NotificationListener extends FileDownloadNotificationListener {
+    public class SelfNotificationListener extends FileDownloadNotificationListener {
 
-        private static final String TAG = "NotificationListener";
-
-        public NotificationListener(FileDownloadNotificationHelper helper) {
+        public SelfNotificationListener(FileDownloadNotificationHelper helper) {
             super(helper);
         }
 
         @Override
         protected BaseNotificationItem create(BaseDownloadTask task) {
-            return new NotificationItem(task.getId(),
-                    context.getString(R.string.download_notification_title),
-                    context.getString(R.string.download_notification_status));
+            return new NotificationItem(task.getId(), (String) task.getTag(TITLE_KEY),
+                    "");
+        }
+
+        @Override
+        public void destroyNotification(final BaseDownloadTask task) {
+            super.destroyNotification(task);
+            threadPoolUtils.execute(new Runnable() {
+                @Override
+                public void run() {
+                    if (task.getStatus() == FileDownloadStatus.completed) {
+                        DownloadVideo downloadVideo = DownloadVideo.assignDownloadVideo(task);
+                        downloadVideo.isVideoNew = true;
+                        DownloadVideoDao.addAndUpdateDownloadVideo(context, downloadVideo);
+
+                        ToastUtils.showShortToast(String.format(context.getString(R.string.download_video_success),
+                                task.getTag(TITLE_KEY)));
+
+                        Intent intent = new Intent();
+                        intent.putExtra("detail_url", (String)task.getTag(DETAIL_KEY));
+                        BroadcastReceiverUtil.sendReceiver(BroadcastReceiverUtil.UPDATE_DOWNLOAD_COUNT, intent);
+                    } else {
+                        FileUtils.deleteFile(task.getPath());
+                        DownloadVideoDao.removeDownloadVideo(context, task.getId());
+                    }
+                }
+            });
         }
 
         @Override
         protected void error(BaseDownloadTask task, Throwable e) {
             super.error(task, e);
-        }
-
-        @Override
-        protected void pending(final BaseDownloadTask task, int soFarBytes, int totalBytes) {
-            super.pending(task, soFarBytes, totalBytes);
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    DownloadVideoDao.addAndUpdateDownloadVideo(context,
-                            DownloadVideo.baseDownloadTaskToDownloadVideo(task));
-                }
-            }).start();
-        }
-
-        @Override
-        protected void completed(final BaseDownloadTask task) {
-            super.completed(task);
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    DownloadVideo downloadVideo = DownloadVideo.baseDownloadTaskToDownloadVideo(task);
-                    DownloadVideoDao.addAndUpdateDownloadVideo(context, downloadVideo);
-                }
-            }).start();
-        }
-
-        @Override
-        public void destroyNotification(BaseDownloadTask task) {
-            super.destroyNotification(task);
-            downloadId = 0;
-
-            int messageResId = 0;
-            switch (task.getStatus()) {
-                case FileDownloadStatus.started:
-                    messageResId = R.string.start_download;
-                    break;
-                case FileDownloadStatus.warn:
-                case FileDownloadStatus.error:
-                    messageResId = R.string.error_download;
-                    break;
-                case FileDownloadStatus.completed:
-                    messageResId = R.string.finish_download;
-                    break;
-            }
-
-            if (messageResId != 0) {
-                ToastUtils.showLongToast(messageResId);
-            }
+            LogUtils.e("error :: " + e.getMessage());
+            ToastUtils.showShortToastSafe(R.string.error_download);
         }
     }
 
@@ -166,11 +158,10 @@ public class FileDownloaderHelper {
 
             builder.setDefaults(Notification.DEFAULT_LIGHTS)
                     .setOngoing(true)
-                    .setPriority(NotificationCompat.PRIORITY_MIN)
                     .setContentTitle(getTitle())
                     .setContentText(desc)
                     .setContentIntent(pendingIntent)
-                    .setSmallIcon(R.mipmap.ic_launcher);
+                    .setSmallIcon(R.drawable.ic_get_app_black_36dp);
 
         }
 
@@ -186,7 +177,7 @@ public class FileDownloaderHelper {
                     desc += " started";
                     break;
                 case FileDownloadStatus.progress:
-                    desc += " downloading...";
+                    desc += " downloading..." + (int)(getSofar() * 1f / getTotal() * 1f * 100);
                     break;
                 case FileDownloadStatus.retry:
                     desc += " retry";
@@ -217,5 +208,75 @@ public class FileDownloaderHelper {
             getManager().notify(getId(), builder.build());
         }
 
+    }
+
+    private class SelfFileDownloadListener extends FileDownloadListener {
+
+        private static final String TAG = "SelfFileDownloadListener";
+
+        @Override
+        protected void pending(final BaseDownloadTask task, int soFarBytes, int totalBytes) {
+            threadPoolUtils.execute(new Runnable() {
+                @Override
+                public void run() {
+                    DownloadVideoDao.addAndUpdateDownloadVideo(context, DownloadVideo.assignDownloadVideo(task));
+                }
+            });
+        }
+
+        @Override
+        protected void progress(final BaseDownloadTask task, int soFarBytes, int totalBytes) {
+            threadPoolUtils.execute(new Runnable() {
+                @Override
+                public void run() {
+                    DownloadVideoDao.addAndUpdateDownloadVideo(context, DownloadVideo.assignDownloadVideo(task));
+                }
+            });
+        }
+
+        @Override
+        protected void completed(final BaseDownloadTask task) {
+            threadPoolUtils.execute(new Runnable() {
+                @Override
+                public void run() {
+                    DownloadVideoDao.addAndUpdateDownloadVideo(context, DownloadVideo.assignDownloadVideo(task));
+                }
+            });
+            LogUtils.v(TAG, "completed getStatus :: " + task.getStatus());
+            ToastUtils.showShortToast(String.format(context.getString(R.string.download_video_success),
+                    task.getTag(TITLE_KEY)));
+        }
+
+        @Override
+        protected void paused(final BaseDownloadTask task, int soFarBytes, int totalBytes) {
+            threadPoolUtils.execute(new Runnable() {
+                @Override
+                public void run() {
+                    DownloadVideoDao.addAndUpdateDownloadVideo(context, DownloadVideo.assignDownloadVideo(task));
+                }
+            });
+        }
+
+        @Override
+        protected void error(final BaseDownloadTask task, Throwable e) {
+            threadPoolUtils.execute(new Runnable() {
+                @Override
+                public void run() {
+                    DownloadVideoDao.addAndUpdateDownloadVideo(context, DownloadVideo.assignDownloadVideo(task));
+                }
+            });
+            LogUtils.e("error :: " + e.getMessage());
+            ToastUtils.showShortToastSafe(R.string.error_download);
+        }
+
+        @Override
+        protected void warn(final BaseDownloadTask task) {
+            threadPoolUtils.execute(new Runnable() {
+                @Override
+                public void run() {
+                    DownloadVideoDao.addAndUpdateDownloadVideo(context, DownloadVideo.assignDownloadVideo(task));
+                }
+            });
+        }
     }
 }

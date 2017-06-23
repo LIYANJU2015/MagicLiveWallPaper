@@ -3,17 +3,19 @@ package com.magiclive.ui.base;
 import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
 import android.animation.TypeEvaluator;
-import android.animation.ValueAnimator;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.PersistableBundle;
+import android.support.annotation.StringRes;
 import android.support.v4.view.ViewCompat;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 import android.view.View;
-import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 
 import com.magiclive.R;
@@ -40,10 +42,46 @@ public class BaseActivity extends AppCompatActivity {
     private int scrolledDistance = 0;
     private boolean controlsVisible = true;
 
+    private Toolbar currentToolbar;
+
     @Override
     public void onCreate(Bundle savedInstanceState, PersistableBundle persistentState) {
         super.onCreate(savedInstanceState, persistentState);
         StatusBarColorCompat.setColor(this, R.color.colorPrimaryDark);
+    }
+
+    public boolean isAddNavigationBackIcon() {
+        return false;
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        View view = findViewById(R.id.toolbar_actionbar);
+        if (view != null && view instanceof Toolbar) {
+            currentToolbar = (Toolbar)view;
+            setSupportActionBar(currentToolbar);
+            if (isAddNavigationBackIcon() && getSupportActionBar() != null) {
+                getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            }
+            onSetToolbar(getSupportActionBar());
+        }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            onBackPressed();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    public void onSetToolbar(ActionBar toolbar) {
+    }
+
+    public void setToobarTitle(@StringRes int resId) {
+        currentToolbar.setTitle(resId);
     }
 
     public void setCurToolbar(View viewbar) {

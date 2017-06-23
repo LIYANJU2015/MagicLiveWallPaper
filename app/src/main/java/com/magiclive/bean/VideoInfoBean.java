@@ -38,12 +38,11 @@ public class VideoInfoBean implements Parcelable{
 
     public int scalingMode = MediaPlayer.VIDEO_SCALING_MODE_SCALE_TO_FIT;
 
-
     public static VideoInfoBean downloadVideoToVideoInfo(DownloadVideo downloadVideo) {
         VideoInfoBean videoInfoBean = new VideoInfoBean();
+        videoInfoBean.name = downloadVideo.title;
         videoInfoBean.path = downloadVideo.filePath;
-        videoInfoBean.size = downloadVideo.size;
-        videoInfoBean.name = downloadVideo.name;
+        videoInfoBean.size = downloadVideo.totalSize;
         return videoInfoBean;
     }
 

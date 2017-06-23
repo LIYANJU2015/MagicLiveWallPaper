@@ -7,23 +7,34 @@ import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.google.android.gms.ads.AdSize;
+import com.google.android.gms.ads.NativeExpressAdView;
+import com.google.android.gms.ads.VideoOptions;
+import com.magiclive.AdViewManager;
 import com.magiclive.R;
+import com.magiclive.bean.DownloadVideo;
+import com.magiclive.bean.LiveWallPaperBean;
 import com.magiclive.bean.OnlineVideoWallPaper;
+import com.magiclive.commonloader.AsyncComDataLoader;
+import com.magiclive.commonloader.IComDataLoader;
+import com.magiclive.commonloader.IComDataLoaderListener;
 import com.magiclive.download.FileDownloaderHelper;
-import com.magiclive.huoying.HuoyingHelper;
 import com.magiclive.pexels.PexelsVideoHelper;
 import com.magiclive.ui.base.BaseFragment;
 import com.magiclive.util.LogUtils;
-import com.magiclive.util.ThreadPoolUtils;
+import com.magiclive.util.NetworkUtils;
+import com.magiclive.util.ScreenUtils;
+import com.magiclive.util.SizeUtils;
 import com.magiclive.util.ToastUtils;
-import com.magiclive.util.UIThreadHelper;
 import com.paginate.Paginate;
 import com.zhy.adapter.recyclerview.CommonAdapter;
 import com.zhy.adapter.recyclerview.base.ViewHolder;
+import com.zhy.adapter.recyclerview.wrapper.HeaderAndFooterWrapper;
 
 /**
  * Created by liyanju on 2017/6/19.
@@ -47,9 +58,39 @@ public class OnlineVideoWallPaperFragment extends BaseFragment implements Pagina
 
     private TextView emptyTipsTV;
 
-    private ThreadPoolUtils threadPoolUtils = new ThreadPoolUtils(ThreadPoolUtils.SingleThread, 1);
+    private String downloadUrl = "";
 
-    private String videoUrl = "";
+    public void updateAdapter() {
+        if (adapter != null) {
+            adapter.notifyDataSetChanged();
+        }
+    }
+
+    private View createNativeAdHeaderView() {
+        LinearLayout linearLayout = new LinearLayout(mActivity);
+        NativeExpressAdView adView = new NativeExpressAdView(mContext);
+
+        int adWidth;
+        if (SizeUtils.px2dp(ScreenUtils.getScreenWidth()) > 1200) {
+            adWidth = 1200;
+        } else {
+            adWidth = SizeUtils.px2dp(ScreenUtils.getScreenWidth());
+        }
+        adView.setAdSize(new AdSize(adWidth, 100));
+
+        adView.setAdUnitId(getString(R.string.native_small_online_video));
+        adView.setVideoOptions(new VideoOptions.Builder()
+                .setStartMuted(true)
+                .build());
+        adView.loadAd(AdViewManager.createAdRequest());
+
+        LinearLayout.LayoutParams childLayoutParams =
+                new LinearLayout.LayoutParams(SizeUtils.dp2px(adWidth),
+                        SizeUtils.dp2px(100));
+        linearLayout.addView(adView, childLayoutParams);
+
+        return linearLayout;
+    }
 
     @Override
     public void initView(View rootView) {
@@ -81,10 +122,47 @@ public class OnlineVideoWallPaperFragment extends BaseFragment implements Pagina
 
                 TextView timeTV = holder.getView(R.id.time_tv);
                 timeTV.setText(onlineVideo.duration);
+
+                TextView downloadTV = holder.getView(R.id.download_status);
+
+                holder.getView(R.id.download_status).setOnClickListener(new View.OnClickListener(){
+                    @Override
+                    public void onClick(View v) {
+                        downloadVideoWallpaper(onlineVideo, position);
+                    }
+                });
+
+                downloadTV.setText(R.string.download);
+                AsyncComDataLoader.getInstance().display(new IComDataLoaderListener() {
+                    @Override
+                    public void onLoadingComplete(IComDataLoader infoLoader, View... views) {
+                        int downloadStatus = (int)infoLoader.getLoadDataObj();
+                        TextView downloadTV = (TextView) views[0];
+                        if (downloadStatus == DownloadVideo.COMPLETED) {
+                            downloadTV.setText(R.string.downloaded);
+                        }
+                    }
+
+                    @Override
+                    public void onCancelLoading(View... views) {
+
+                    }
+
+                    @Override
+                    public void onStartLoading(View... views) {
+
+                    }
+                }, onlineVideo, downloadTV);
             }
         };
 
-        recyclerView.setAdapter(adapter);
+        HeaderAndFooterWrapper<LiveWallPaperBean> headerAndFooterWrapper = new HeaderAndFooterWrapper<>(adapter);
+
+        if (NetworkUtils.isAvailableByPing()) {
+            headerAndFooterWrapper.addHeaderView(createNativeAdHeaderView());
+        }
+
+        recyclerView.setAdapter(headerAndFooterWrapper);
 
         progressBar = (ProgressBar) rootView.findViewById(R.id.progressBar);
     }
@@ -99,12 +177,12 @@ public class OnlineVideoWallPaperFragment extends BaseFragment implements Pagina
 
             @Override
             protected Void doInBackground(Void... params) {
-                videoUrl = "";
+                downloadUrl = "";
                 try {
-                    videoUrl = HuoyingHelper.parseGetVideoUrlByDetailUrl(onlineVideo.detailUrl);
-                    if (!TextUtils.isEmpty(videoUrl)) {
-                        FileDownloaderHelper.getInstances().addDownloadTask(videoUrl,
-                                onlineVideoWallPaper.currentUrl, onlineVideo.detailUrl);
+                    downloadUrl = PexelsVideoHelper.getDownloadVideoUrl(onlineVideo.detailUrl);
+                    LogUtils.v(TAG, "downloadVideoWallpaper downloadUrl " + downloadUrl);
+                    if (!TextUtils.isEmpty(downloadUrl)) {
+                        FileDownloaderHelper.getInstances().addDownloadTask(downloadUrl, onlineVideo);
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -116,17 +194,13 @@ public class OnlineVideoWallPaperFragment extends BaseFragment implements Pagina
             protected void onPostExecute(Void aVoid) {
                 super.onPostExecute(aVoid);
                 progressBar.setVisibility(View.GONE);
-                if (TextUtils.isEmpty(videoUrl)) {
+                if (TextUtils.isEmpty(downloadUrl)) {
                     ToastUtils.showShortToast(R.string.error_download);
                 }
-                UIThreadHelper.getInstance().getHandler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (adapter != null && isAdded()) {
-                            adapter.notifyItemChanged(postion);
-                        }
-                    }
-                }, 600);
+
+                if (adapter != null && isAdded()) {
+                    adapter.notifyItemChanged(postion);
+                }
             }
         }.execute();
     }

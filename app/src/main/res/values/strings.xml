@@ -60,5 +60,11 @@
     <string name="error_download">Download error</string>
     <string name="finish_download">Download complete</string>
     <string name="downloading">Downloading...</string>
-    
+
+    <string name="downloaded">Complete</string>
+
+    <string name="local_download">Local Video</string>
+    <string name="download_added">Download already added</string>
+    <string name="download_add_success">Download add success!</string>
+    <string name="download_video_success">%s Download Finish</string>
 </resources>

@@ -5,6 +5,7 @@ import android.app.WallpaperManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
@@ -40,19 +41,26 @@ import com.magiclive.AppApplication;
 import com.magiclive.R;
 import com.magiclive.WallPaperUtils;
 import com.magiclive.adapter.AdapterViewPager;
+import com.magiclive.bean.OnlineVideoWallPaper;
 import com.magiclive.bean.VideoInfoBean;
+import com.magiclive.db.DownloadVideoDao;
 import com.magiclive.db.VideoWallPaperDao;
+import com.magiclive.download.DownloadVideoActvity;
 import com.magiclive.service.MirrorLiveWallPaperService;
 import com.magiclive.service.TransparentLiveWallPaperService;
 import com.magiclive.ui.base.BaseActivity;
+import com.magiclive.util.BroadcastReceiverUtil;
 import com.magiclive.util.DeviceUtils;
 import com.magiclive.util.IntentUtils;
+import com.magiclive.util.LogUtils;
 import com.magiclive.util.SizeUtils;
 import com.magiclive.util.StatusBarColorCompat;
 import com.magiclive.util.Utils;
 
 import static com.magiclive.R.id.main_viewPager;
 import static com.magiclive.db.VideoWallPaperDao.getVideoWallPaper;
+import static com.magiclive.download.FileDownloaderHelper.DETAIL_KEY;
+import static com.magiclive.util.BroadcastReceiverUtil.UPDATE_DOWNLOAD_COUNT;
 import static com.magiclive.util.LogUtils.A;
 import static com.magiclive.util.LogUtils.D;
 import static com.magiclive.util.LogUtils.I;
@@ -71,11 +79,13 @@ public class MainActivity extends BaseActivity {
     private AdapterViewPager mAdapter;
 
     private CharSequence mTitle[] = {AppApplication.getContext().getString(R.string.live_wallpaper),
-            AppApplication.getContext().getString(R.string.history_record),
-            AppApplication.getContext().getString(R.string.online_videowallpaper)};
+            AppApplication.getContext().getString(R.string.online_videowallpaper),
+            AppApplication.getContext().getString(R.string.history_record)
+            };
 
     private WallpaperHistoryFragment mHistroyFragment;
     private WallpaperListFragment mListFragment;
+    private OnlineVideoWallPaperFragment mOnlineFragment;
 
     private Context mContext;
 
@@ -86,22 +96,46 @@ public class MainActivity extends BaseActivity {
 
         setContentView(R.layout.activity_main);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_actionbar);
-        setSupportActionBar(toolbar);
-
         mMainViewPager = (ViewPager) findViewById(main_viewPager);
         mAdapter = new AdapterViewPager(getSupportFragmentManager());
         mHistroyFragment = new WallpaperHistoryFragment();
         mListFragment = new WallpaperListFragment();
-        mAdapter.bindData(mTitle, mListFragment, mHistroyFragment, new OnlineVideoWallPaperFragment());
+        mOnlineFragment= new OnlineVideoWallPaperFragment();
+        mAdapter.bindData(mTitle, mListFragment, mOnlineFragment, mHistroyFragment);
         mMainViewPager.setOffscreenPageLimit(3);
         mMainViewPager.setAdapter(mAdapter);
 
         mMainTabLayout = (TabLayout) findViewById(R.id.main_tablayout);
-        mMainTabLayout.setTabMode(TabLayout.MODE_SCROLLABLE);
+        mMainTabLayout.setTabMode(TabLayout.MODE_FIXED);
         mMainTabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
         mMainTabLayout.setupWithViewPager(mMainViewPager);
         mMainTabLayout.setSelectedTabIndicatorHeight(SizeUtils.dp2px(3));
+
+        for (int i = 0; i < mMainTabLayout.getTabCount(); i++) {
+            TabLayout.Tab tab = mMainTabLayout.getTabAt(i);
+            if (tab != null) {
+                tab.setCustomView(mAdapter.getTabView(this, i));
+            }
+        }
+
+        BroadcastReceiverUtil.get().addReceiver(UPDATE_DOWNLOAD_COUNT, new BroadcastReceiverUtil.IReceiver() {
+            @Override
+            public void onReceive(Intent intent) {
+                String detailUrl = intent.getStringExtra("detail_url");
+                LogUtils.v(" onReceive detailUrl " + detailUrl);
+                OnlineVideoWallPaper.OnlineVideo.removeCache(detailUrl);
+                mOnlineFragment.updateAdapter();
+
+                updateBadgeCount(DownloadVideoDao.getDownloadNewCount());
+            }
+        });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        BroadcastReceiverUtil.get().unRegister(mContext);
+        OnlineVideoWallPaper.OnlineVideo.removeAll();
     }
 
     private DownloadActionProvider mDownloadProvider;
@@ -115,10 +149,16 @@ public class MainActivity extends BaseActivity {
         mDownloadProvider.setOnClickListener(0, new DownloadActionProvider.OnClickListener() {
             @Override
             public void onClick(int what) {
-
+                DownloadVideoActvity.launch(mContext);
             }
         });
         return true;
+    }
+
+    public void updateBadgeCount(int count) {
+        if (mDownloadProvider != null && !isFinishing() && count > 0) {
+            mDownloadProvider.setBadge(count);
+        }
     }
 
     @Override

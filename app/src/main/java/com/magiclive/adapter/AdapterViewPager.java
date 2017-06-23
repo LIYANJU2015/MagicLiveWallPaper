@@ -2,12 +2,18 @@ package com.magiclive.adapter;
 
 
 
+import android.app.Activity;
 import android.os.Parcelable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
+
+import com.magiclive.R;
+import com.magiclive.ui.MainActivity;
 
 import java.util.Arrays;
 import java.util.List;
@@ -80,5 +86,12 @@ public class AdapterViewPager extends FragmentPagerAdapter {
         View view = mList.get(position).getView();
         if (view != null)
             container.removeView(view);
+    }
+
+    public View getTabView(Activity activity, int position) {
+        View tab = LayoutInflater.from(activity).inflate(R.layout.custom_tab, null);
+        TextView tv = (TextView) tab.findViewById(R.id.custom_text);
+        tv.setText(mTitles[position]);
+        return tab;
     }
 }
