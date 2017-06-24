@@ -30,8 +30,8 @@ public class MagicLiveContentProvider extends BaseContentProvider{
         return "magic_live";
     }
 
-    //1.1 1
-    //1.2 2
+    //1.1 ---1
+    //2.0.0 ---2
     @Override
     public int onDataBaseVersion() {
         return 2;
