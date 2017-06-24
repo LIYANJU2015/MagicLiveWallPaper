@@ -30,7 +30,6 @@ public class BroadcastReceiverUtil {
 
     private BroadcastReceiverUtil() {
         myBroadcastReceiver = new MyBroadcastReceiver();
-        register(AppApplication.getContext());
     }
 
     public void addReceiver(int key, IReceiver receiver) {

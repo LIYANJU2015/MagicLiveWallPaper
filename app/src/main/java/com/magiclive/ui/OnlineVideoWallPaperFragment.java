@@ -60,6 +60,8 @@ public class OnlineVideoWallPaperFragment extends BaseFragment implements Pagina
 
     private String downloadUrl = "";
 
+    private HeaderAndFooterWrapper<LiveWallPaperBean> headerAndFooterWrapper;
+
     public void updateAdapter() {
         if (adapter != null) {
             adapter.notifyDataSetChanged();
@@ -156,7 +158,7 @@ public class OnlineVideoWallPaperFragment extends BaseFragment implements Pagina
             }
         };
 
-        HeaderAndFooterWrapper<LiveWallPaperBean> headerAndFooterWrapper = new HeaderAndFooterWrapper<>(adapter);
+        headerAndFooterWrapper = new HeaderAndFooterWrapper<>(adapter);
 
         if (NetworkUtils.isAvailableByPing()) {
             headerAndFooterWrapper.addHeaderView(createNativeAdHeaderView());
@@ -258,7 +260,7 @@ public class OnlineVideoWallPaperFragment extends BaseFragment implements Pagina
                 int positionStart = onlineVideoWallPaper.onlineVideos.size();
                 onlineVideoWallPaper.update(videoWallPaper);
 
-                adapter.notifyItemRangeChanged(positionStart,
+                headerAndFooterWrapper.notifyItemRangeChanged(positionStart,
                         onlineVideoWallPaper.onlineVideos.size());
 
                 if (mPaginate == null && onlineVideoWallPaper.onlineVideos.size() > 0) {

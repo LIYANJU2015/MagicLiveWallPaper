@@ -5,46 +5,27 @@ import android.app.WallpaperManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.MenuItemCompat;
-import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.AppCompatDialog;
 import android.support.v7.widget.AppCompatCheckBox;
-import android.support.v7.widget.Toolbar;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.CheckBox;
 import android.widget.CompoundButton;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.resource.drawable.GlideDrawable;
-import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.animation.GlideAnimation;
-import com.bumptech.glide.request.target.SimpleTarget;
-import com.bumptech.glide.request.target.Target;
 import com.magiclive.AppApplication;
 import com.magiclive.R;
-import com.magiclive.WallPaperUtils;
 import com.magiclive.adapter.AdapterViewPager;
 import com.magiclive.bean.OnlineVideoWallPaper;
-import com.magiclive.bean.VideoInfoBean;
 import com.magiclive.db.DownloadVideoDao;
-import com.magiclive.db.VideoWallPaperDao;
 import com.magiclive.download.DownloadVideoActvity;
 import com.magiclive.service.MirrorLiveWallPaperService;
 import com.magiclive.service.TransparentLiveWallPaperService;
@@ -54,16 +35,10 @@ import com.magiclive.util.DeviceUtils;
 import com.magiclive.util.IntentUtils;
 import com.magiclive.util.LogUtils;
 import com.magiclive.util.SizeUtils;
-import com.magiclive.util.StatusBarColorCompat;
 import com.magiclive.util.Utils;
 
 import static com.magiclive.R.id.main_viewPager;
-import static com.magiclive.db.VideoWallPaperDao.getVideoWallPaper;
-import static com.magiclive.download.FileDownloaderHelper.DETAIL_KEY;
 import static com.magiclive.util.BroadcastReceiverUtil.UPDATE_DOWNLOAD_COUNT;
-import static com.magiclive.util.LogUtils.A;
-import static com.magiclive.util.LogUtils.D;
-import static com.magiclive.util.LogUtils.I;
 
 
 /**
@@ -118,6 +93,7 @@ public class MainActivity extends BaseActivity {
             }
         }
 
+        BroadcastReceiverUtil.get().register(mContext);
         BroadcastReceiverUtil.get().addReceiver(UPDATE_DOWNLOAD_COUNT, new BroadcastReceiverUtil.IReceiver() {
             @Override
             public void onReceive(Intent intent) {

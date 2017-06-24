@@ -67,4 +67,7 @@
     <string name="download_added">Download already added</string>
     <string name="download_add_success">Download add success!</string>
     <string name="download_video_success">%s Download Finish</string>
+
+    <string name="delete_download">Delete Download File</string>
+    <string name="delete_download_content">Do you want to delete download file ?</string>
 </resources>

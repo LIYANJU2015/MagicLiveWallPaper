@@ -177,7 +177,7 @@ public class FileDownloaderHelper {
                     desc += " started";
                     break;
                 case FileDownloadStatus.progress:
-                    desc += " downloading..." + (int)(getSofar() * 1f / getTotal() * 1f * 100);
+                    desc += " downloading... " + (int)(getSofar() * 1f / getTotal() * 1f * 100) + "%";
                     break;
                 case FileDownloadStatus.retry:
                     desc += " retry";

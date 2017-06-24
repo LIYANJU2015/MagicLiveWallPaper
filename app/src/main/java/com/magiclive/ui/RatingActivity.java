@@ -16,6 +16,7 @@ import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.magiclive.AppApplication;
 import com.magiclive.R;
 import com.magiclive.util.MyAnimatorListener;
 import com.magiclive.widget.StarPointContainer;
@@ -186,6 +187,7 @@ public class RatingActivity extends Activity {
         mFinishWithAnimation = false;
         finish();
         gotoGP();
+        AppApplication.getSPUtils().put("ratingcount", 5);
     }
 
     @Override
