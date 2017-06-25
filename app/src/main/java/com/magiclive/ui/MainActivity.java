@@ -9,14 +9,11 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
-import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatDialog;
 import android.support.v7.widget.AppCompatCheckBox;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.CompoundButton;
@@ -24,21 +21,15 @@ import android.widget.CompoundButton;
 import com.magiclive.AppApplication;
 import com.magiclive.R;
 import com.magiclive.adapter.AdapterViewPager;
-import com.magiclive.bean.OnlineVideoWallPaper;
-import com.magiclive.db.DownloadVideoDao;
-import com.magiclive.download.DownloadVideoActvity;
 import com.magiclive.service.MirrorLiveWallPaperService;
 import com.magiclive.service.TransparentLiveWallPaperService;
 import com.magiclive.ui.base.BaseActivity;
-import com.magiclive.util.BroadcastReceiverUtil;
 import com.magiclive.util.DeviceUtils;
 import com.magiclive.util.IntentUtils;
-import com.magiclive.util.LogUtils;
 import com.magiclive.util.SizeUtils;
 import com.magiclive.util.Utils;
 
 import static com.magiclive.R.id.main_viewPager;
-import static com.magiclive.util.BroadcastReceiverUtil.UPDATE_DOWNLOAD_COUNT;
 
 
 /**
@@ -58,9 +49,7 @@ public class MainActivity extends BaseActivity {
             AppApplication.getContext().getString(R.string.history_record)
             };
 
-    private WallpaperHistoryFragment mHistroyFragment;
     private WallpaperListFragment mListFragment;
-    private OnlineVideoWallPaperFragment mOnlineFragment;
 
     private Context mContext;
 
@@ -73,11 +62,8 @@ public class MainActivity extends BaseActivity {
 
         mMainViewPager = (ViewPager) findViewById(main_viewPager);
         mAdapter = new AdapterViewPager(getSupportFragmentManager());
-        mHistroyFragment = new WallpaperHistoryFragment();
         mListFragment = new WallpaperListFragment();
-        mOnlineFragment= new OnlineVideoWallPaperFragment();
-        mAdapter.bindData(mTitle, mListFragment, mOnlineFragment, mHistroyFragment);
-        mMainViewPager.setOffscreenPageLimit(3);
+        mAdapter.bindData(mTitle, mListFragment);
         mMainViewPager.setAdapter(mAdapter);
 
         mMainTabLayout = (TabLayout) findViewById(R.id.main_tablayout);
@@ -93,48 +79,6 @@ public class MainActivity extends BaseActivity {
             }
         }
 
-        BroadcastReceiverUtil.get().register(mContext);
-        BroadcastReceiverUtil.get().addReceiver(UPDATE_DOWNLOAD_COUNT, new BroadcastReceiverUtil.IReceiver() {
-            @Override
-            public void onReceive(Intent intent) {
-                String detailUrl = intent.getStringExtra("detail_url");
-                LogUtils.v(" onReceive detailUrl " + detailUrl);
-                OnlineVideoWallPaper.OnlineVideo.removeCache(detailUrl);
-                mOnlineFragment.updateAdapter();
-
-                updateBadgeCount(DownloadVideoDao.getDownloadNewCount());
-            }
-        });
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        BroadcastReceiverUtil.get().unRegister(mContext);
-        OnlineVideoWallPaper.OnlineVideo.removeAll();
-    }
-
-    private DownloadActionProvider mDownloadProvider;
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.main_menu, menu);
-        MenuItem menuItem = menu.findItem(R.id.menu_download);
-        mDownloadProvider = (DownloadActionProvider) MenuItemCompat.getActionProvider(menuItem);
-        mDownloadProvider.setOnClickListener(0, new DownloadActionProvider.OnClickListener() {
-            @Override
-            public void onClick(int what) {
-                DownloadVideoActvity.launch(mContext);
-            }
-        });
-        return true;
-    }
-
-    public void updateBadgeCount(int count) {
-        if (mDownloadProvider != null && !isFinishing() && count > 0) {
-            mDownloadProvider.setBadge(count);
-        }
     }
 
     @Override

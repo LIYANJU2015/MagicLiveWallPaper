@@ -51,12 +51,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".ui.LocalVideoListActivity"
-            android:launchMode="singleTask"
-            android:screenOrientation="portrait"
-            android:configChanges="orientation|screenSize|keyboardHidden"
-            android:theme="@style/Theme.Livewall.Page"
-            />
+
 
         <activity android:name=".ui.VideoWallPaperDetailActivity"
             android:launchMode="singleTask"
@@ -70,13 +65,6 @@
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
             android:theme="@style/DialogStyle"
-            />
-
-        <activity android:name=".download.DownloadVideoActvity"
-            android:launchMode="singleTask"
-            android:screenOrientation="portrait"
-            android:configChanges="orientation|screenSize|keyboardHidden"
-            android:theme="@style/Theme.Livewall.Page"
             />
 
         <service android:label="@string/app_name"
@@ -122,7 +110,7 @@
         </service>
 
         <provider
-            android:authorities="com.magiclive.db.MagicLiveContentProvider"
+            android:authorities="com.sexgirl.MagicLiveContentProvider"
             android:name=".db.MagicLiveContentProvider"/>
 
         <meta-data
@@ -131,7 +119,7 @@
         <!-- 配置APP版本号 -->
         <meta-data
             android:name="BUGLY_APP_VERSION"
-            android:value="2.0.0" />
+            android:value="2.1.0" />
         <!-- 配置APP渠道号 -->
         <meta-data
             android:name="BUGLY_APP_CHANNEL"

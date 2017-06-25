@@ -10,12 +10,6 @@
         app:showAsAction="always" />
 
     <item
-        android:id="@+id/menu_download"
-        android:title="@string/download"
-        app:actionProviderClass="com.magiclive.ui.DownloadActionProvider"
-        app:showAsAction="always" />
-
-    <item
         android:id="@+id/action_more"
         android:orderInCategory="3"
         android:title="@string/system_wallpaper"

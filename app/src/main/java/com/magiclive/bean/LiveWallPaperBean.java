@@ -4,6 +4,10 @@ import android.content.Context;
 import android.database.Cursor;
 import android.provider.MediaStore;
 
+import com.magiclive.AppApplication;
+import com.magiclive.R;
+
+import static android.R.attr.id;
 
 
 /**
@@ -24,21 +28,19 @@ public class LiveWallPaperBean {
 
     public int videoCount;
 
+    public static final String VIDEO_PATH =  "file:///android_asset/test1.mp4";
+
     public void setLastSDCardVideoInfo(Context context) {
-        Cursor cursor = null;
+        videoInfoBean = new VideoInfoBean();
+        int id = 0;
         try {
-            cursor = context.getContentResolver().query(MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
-                    new String[]{MediaStore.Video.VideoColumns.DATA}, null, null, null);
-            if (cursor != null && cursor.getCount() > 0) {
-                cursor.moveToFirst();
-                videoInfoBean = new VideoInfoBean();
-                videoInfoBean.path = cursor.getString(cursor.getColumnIndex(MediaStore.MediaColumns.DATA));
-                videoCount = cursor.getCount();
-            }
-        } finally {
-             if (cursor != null) {
-                 cursor.close();
-             }
+            id =R.raw.class.getDeclaredField("test1").getInt(this);
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (NoSuchFieldException e) {
+            e.printStackTrace();
         }
+        videoInfoBean.path = "android.resource://" + AppApplication.getContext().getPackageName() + "/" + id;
+        videoInfoBean.name = "Sexy girl";
     }
 }

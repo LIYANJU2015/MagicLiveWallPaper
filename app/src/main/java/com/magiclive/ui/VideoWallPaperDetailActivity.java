@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Rect;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.MotionEvent;
@@ -197,7 +198,7 @@ public class VideoWallPaperDetailActivity extends Activity implements MediaPlaye
         videoView.setVisibility(View.VISIBLE);
         videoView.setOnPreparedListener(this);
         videoView.setOnCompletionListener(this);
-        videoView.setVideoPath(curVideoInfo.path);
+        videoView.setVideoURI(Uri.parse(curVideoInfo.path));
         videoView.setMediaController(null);
         videoView.requestFocus();
     }

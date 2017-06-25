@@ -40,7 +40,6 @@
                     android:layout_width="60dp"
                     android:layout_height="60dp"
                     android:layout_gravity="center"
-                    android:src="@drawable/ic_play"
                     android:visibility="gone" />
 
             </com.magiclive.widget.AspectRatioFrameLayout>

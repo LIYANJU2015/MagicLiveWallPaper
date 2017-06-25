@@ -10,18 +10,14 @@ import android.os.Environment;
 import android.text.TextUtils;
 
 import com.google.android.gms.ads.MobileAds;
-import com.liulishuo.filedownloader.FileDownloader;
 import com.magiclive.ui.MainActivity;
 import com.magiclive.util.LogUtils;
-import com.magiclive.util.ProcessUtils;
 import com.magiclive.util.SPUtils;
 import com.magiclive.util.Utils;
-import com.tencent.bugly.crashreport.CrashReport;
+
 
 import java.util.List;
 
-import static android.R.attr.process;
-import static com.magiclive.util.LogUtils.A;
 import static java.lang.System.currentTimeMillis;
 
 
@@ -59,8 +55,6 @@ public class AppApplication extends Application{
 
         Utils.init(this);
 
-        FileDownloader.init(sContext);
-
         sSPUtils = new SPUtils("magiclive");
 
         appManager = new AppManager(this);
@@ -79,7 +73,6 @@ public class AppApplication extends Application{
 
         final String packageName = getPackageName();
         if (!TextUtils.isEmpty(packageName) && packageName.equals(getCurrentProcessName())) {
-            CrashReport.initCrashReport(this, "d7855ed933", false);
             MobileAds.initialize(this, getString(R.string.app_id));
             LogUtils.v("AppApplication init " + packageName);
         }

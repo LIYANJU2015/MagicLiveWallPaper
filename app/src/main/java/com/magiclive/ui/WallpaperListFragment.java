@@ -1,5 +1,10 @@
 package com.magiclive.ui;
 
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.media.MediaMetadataRetriever;
+import android.net.Uri;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -9,7 +14,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
 import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.NativeExpressAdView;
 import com.google.android.gms.ads.VideoOptions;
@@ -21,6 +25,7 @@ import com.magiclive.bean.LiveWallPaperBean;
 import com.magiclive.service.MirrorLiveWallPaperService;
 import com.magiclive.service.TransparentLiveWallPaperService;
 import com.magiclive.ui.base.BaseFragment;
+import com.magiclive.util.LogUtils;
 import com.magiclive.util.NetworkUtils;
 import com.magiclive.util.ScreenUtils;
 import com.magiclive.util.SizeUtils;
@@ -30,8 +35,10 @@ import com.zhy.adapter.recyclerview.wrapper.HeaderAndFooterWrapper;
 
 import java.util.ArrayList;
 
+
 import static com.magiclive.bean.LiveWallPaperBean.MIRROR_LIVE_WALLPAPER;
 import static com.magiclive.bean.LiveWallPaperBean.VIDEO_LIVE_WALLPAPER;
+
 
 /**
  * Created by liyanju on 2017/6/5.
@@ -91,7 +98,7 @@ public class WallpaperListFragment extends BaseFragment {
         }
         adView.setAdSize(new AdSize(adWidth, 100));
 
-        adView.setAdUnitId(getString(R.string.native_small_ad3));
+        adView.setAdUnitId(getString(R.string.native_small_ad1));
         adView.setVideoOptions(new VideoOptions.Builder()
                 .setStartMuted(true)
                 .build());
@@ -103,6 +110,16 @@ public class WallpaperListFragment extends BaseFragment {
         linearLayout.addView(adView, childLayoutParams);
 
         return linearLayout;
+    }
+
+    private Drawable getThumbnail(Uri aVideoUri) {
+        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+        retriever.setDataSource(mContext, aVideoUri);
+        Bitmap bitmap = retriever
+                .getFrameAtTime(1 * 1000 * 1000, MediaMetadataRetriever.OPTION_PREVIOUS_SYNC);
+        Drawable drawable = new BitmapDrawable(getResources(), bitmap);
+
+        return drawable;
     }
 
     private CommonAdapter<LiveWallPaperBean> mCommonAdapter = new CommonAdapter<LiveWallPaperBean>(AppApplication.getContext(),
@@ -117,32 +134,22 @@ public class WallpaperListFragment extends BaseFragment {
                 }
                 ImageView thumbnailIV = holder.getView(R.id.thumbnail);
                 if (bean.videoInfoBean != null && !TextUtils.isEmpty(bean.videoInfoBean.path)) {
-                    Glide.with(mActivity).load(bean.videoInfoBean.path)
-                            .placeholder(R.drawable.video_thumbnail_default)
-                            .error(R.drawable.video_thumbnail_default).crossFade()
-                            .into(thumbnailIV);
+                    Uri uri = Uri.parse(bean.videoInfoBean.path);
+                    LogUtils.v("xx", " convert uri "+ uri);
+                    thumbnailIV.setImageDrawable(getThumbnail(uri));
 
-                    holder.getView(R.id.description).setVisibility(View.VISIBLE);
-                    ((TextView) holder.getView(R.id.description))
-                            .setText(String.format(getString(R.string.video_count_text),
-                                    String.valueOf(bean.videoCount)));
-
-                    holder.getView(R.id.thumbnail_frame).setBackgroundResource(R.drawable.video_icon_bg);
-                    thumbnailIV.setPadding(0, 0, SizeUtils.dp2px(8), SizeUtils.dp2px(8));
+                    holder.getView(R.id.description).setVisibility(View.GONE);
                 } else {
                     holder.getView(R.id.thumbnail_frame).setBackground(null);
-                    thumbnailIV.setPadding(0, 0, SizeUtils.dp2px(0), SizeUtils.dp2px(0));
                 }
 
                 ((TextView) holder.getView(R.id.title)).setMaxLines(1);
 
             } else {
                 if (bean.type == MIRROR_LIVE_WALLPAPER) {
-                    Glide.with(mActivity).load(R.drawable.mirror_icon)
-                            .into((ImageView) holder.getView(R.id.thumbnail));
+                    ((ImageView) holder.getView(R.id.thumbnail)).setImageResource(R.drawable.mirror_icon);
                 } else {
-                    Glide.with(mActivity).load(R.drawable.transparency_icon)
-                            .into((ImageView) holder.getView(R.id.thumbnail));
+                    ((ImageView) holder.getView(R.id.thumbnail)).setImageResource(R.drawable.transparency_icon);
                 }
 
                 ((TextView) holder.getView(R.id.title)).setMaxLines(2);
@@ -160,7 +167,7 @@ public class WallpaperListFragment extends BaseFragment {
                             TransparentLiveWallPaperService.startTransparentWallpaperPreView(mActivity);
                             break;
                         case VIDEO_LIVE_WALLPAPER:
-                            LocalVideoListActivity.launch(mContext);
+                            VideoWallPaperDetailActivity.launch(mContext, bean.videoInfoBean);
                             break;
                     }
                 }

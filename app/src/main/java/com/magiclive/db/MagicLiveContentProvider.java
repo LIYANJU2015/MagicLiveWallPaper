@@ -14,7 +14,6 @@ import com.magiclive.util.LogUtils;
 public class MagicLiveContentProvider extends BaseContentProvider{
 
     public static final int VIDEO_CODE = 111;
-    public static final int DOWNLOAD_VIDEO_CODE = 222;
 
     private SparseArray<TableInfo> tableInfoArray;
 
@@ -22,7 +21,6 @@ public class MagicLiveContentProvider extends BaseContentProvider{
     public void onAddTableInfo(SparseArray<TableInfo> tableInfoArray) {
         this.tableInfoArray = tableInfoArray;
         tableInfoArray.put(VIDEO_CODE, new MagicLiveContract.VideoContract());
-        tableInfoArray.put(DOWNLOAD_VIDEO_CODE, new MagicLiveContract.DownloadVideoContract());
     }
 
     @Override
@@ -31,17 +29,13 @@ public class MagicLiveContentProvider extends BaseContentProvider{
     }
 
     //1.1 ---1
-    //2.0.0 ---2
     @Override
     public int onDataBaseVersion() {
-        return 2;
+        return 1;
     }
 
     @Override
     public void onDBUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         LogUtils.v("onDBUpgrade oldVersion " + oldVersion + " newVersion " + newVersion);
-        if (oldVersion == 1) {
-            db.execSQL(tableInfoArray.get(DOWNLOAD_VIDEO_CODE).getCreateTableSql());
-        }
     }
 }

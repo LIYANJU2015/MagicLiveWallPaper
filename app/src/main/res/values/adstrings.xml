@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_id">ca-app-pub-9880857526519562~2811974533</string>
-    <string name="banner_ad1">ca-app-pub-9880857526519562/5765440938</string>
-    <string name="native_small_ad1">ca-app-pub-9880857526519562/2672373739</string>
-    <string name="native_small_ad2">ca-app-pub-9880857526519562/6330517333</string>
-    <string name="native_small_ad3">ca-app-pub-9880857526519562/7807250532</string>
-    <string name="insert_ad1">ca-app-pub-9880857526519562/7242174133</string>
-    <string name="native_small_online_video">ca-app-pub-9880857526519562/2920575732</string>
+    <string name="app_id">ca-app-pub-9880857526519562~4785758536</string>
+
+    <string name="native_small_ad1">ca-app-pub-9880857526519562/6262491735</string>
+
+    <string name="banner_ad1">ca-app-pub-9880857526519562/9215958133</string>
 </resources>

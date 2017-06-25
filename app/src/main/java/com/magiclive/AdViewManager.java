@@ -50,19 +50,19 @@ public class AdViewManager {
     }
 
     public void initInterstitialAd() {
-        mInterstitialAd = new InterstitialAd(mContext);
-        mInterstitialAd.setAdUnitId(mContext.getString(R.string.insert_ad1));
-        mInterstitialAd.setAdListener(new AdListener() {
-            @Override
-            public void onAdClosed() {
-                if (closeRunnable != null) {
-                    closeRunnable.run();
-                    closeRunnable = null;
-                }
-
-                requestNewInterstitial();
-            }
-        });
+//        mInterstitialAd = new InterstitialAd(mContext);
+//        mInterstitialAd.setAdUnitId(mContext.getString(R.string.insert_ad1));
+//        mInterstitialAd.setAdListener(new AdListener() {
+//            @Override
+//            public void onAdClosed() {
+//                if (closeRunnable != null) {
+//                    closeRunnable.run();
+//                    closeRunnable = null;
+//                }
+//
+//                requestNewInterstitial();
+//            }
+//        });
     }
 
     private Runnable closeRunnable;

@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.service.wallpaper.WallpaperService;
 import android.text.TextUtils;
 import android.view.SurfaceHolder;
@@ -220,7 +221,7 @@ public class VideoLiveWallPaperService extends WallpaperService {
                     return;
                 }
                 mediaPlayer.reset();
-                mediaPlayer.setDataSource(path);
+                mediaPlayer.setDataSource(context, Uri.parse(path));
                 mediaPlayer.setOnCompletionListener(this);
                 if (curVideoInfoBean != null) {
                     mediaPlayer.setVideoScalingMode(curVideoInfoBean.scalingMode);

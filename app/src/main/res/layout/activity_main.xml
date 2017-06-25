@@ -30,6 +30,7 @@
             app:tabMode="scrollable"
             app:tabGravity="center"
             app:tabPadding="2dp"
+            android:visibility="gone"
              />
     </LinearLayout>
 
