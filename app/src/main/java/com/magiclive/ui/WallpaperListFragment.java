@@ -4,7 +4,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.View;
-import android.widget.HeaderViewListAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -127,7 +126,7 @@ public class WallpaperListFragment extends BaseFragment {
                             .setText(String.format(getString(R.string.video_count_text),
                                     String.valueOf(bean.videoCount)));
 
-                    holder.getView(R.id.thumbnail_frame).setBackgroundResource(R.drawable.video_icon_bg);
+                    holder.getView(R.id.thumbnail_frame).setBackgroundResource(R.drawable.ic_video_icon_bg);
                     thumbnailIV.setPadding(0, 0, SizeUtils.dp2px(8), SizeUtils.dp2px(8));
                 } else {
                     holder.getView(R.id.thumbnail_frame).setBackground(null);
@@ -138,10 +137,10 @@ public class WallpaperListFragment extends BaseFragment {
 
             } else {
                 if (bean.type == MIRROR_LIVE_WALLPAPER) {
-                    Glide.with(mActivity).load(R.drawable.mirror_icon)
+                    Glide.with(mActivity).load(R.drawable.ic_mirror_icon)
                             .into((ImageView) holder.getView(R.id.thumbnail));
                 } else {
-                    Glide.with(mActivity).load(R.drawable.transparency_icon)
+                    Glide.with(mActivity).load(R.drawable.ic_transparency_icon)
                             .into((ImageView) holder.getView(R.id.thumbnail));
                 }
 

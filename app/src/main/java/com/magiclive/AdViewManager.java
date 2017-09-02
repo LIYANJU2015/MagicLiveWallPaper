@@ -83,7 +83,7 @@ public class AdViewManager {
     public void requestNewInterstitial() {
         AdRequest.Builder builder = new AdRequest.Builder();
         if (IS_DEBUG) {
-            builder.addTestDevice("SEE_YOUR_LOGCAT_TO_GET_YOUR_DEVICE_ID");
+            builder.addTestDevice("2B78D0808026832B1F890A41E51538C8");
         }
         AdRequest adRequest = builder.build();
 
